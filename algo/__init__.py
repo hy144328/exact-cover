@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-from collections.abc import Iterable
-
 import pandas as pd
 
 
@@ -9,18 +7,18 @@ class Table(pd.DataFrame):
     def __init__(self, df):
         super().__init__(df)
 
-    def choose_rows(self, col) -> Iterable:
+    def choose_rows(self, col) -> list:
         return [row_it for row_it in self.index if self.at[row_it, col] == 1]
 
-    def choose_cols(self, row) -> Iterable:
+    def choose_cols(self, row) -> list:
         return [col_it for col_it in self.columns if self.at[row, col_it] == 1]
 
-    def delete_rows(self, rows: Iterable) -> "Table":
-        new_index = set(self.index) - set(rows)
+    def delete_rows(self, rows: list) -> "Table":
+        new_index = [e for e in self.index if e not in set(rows)]
         return Table(self.loc[new_index, :])
 
-    def delete_cols(self, cols: Iterable) -> "Table":
-        new_columns = set(self.columns) - set(cols)
+    def delete_cols(self, cols: list) -> "Table":
+        new_columns = [e for e in self.columns if e not in set(cols)]
         return Table(self.loc[:, new_columns])
 
 
