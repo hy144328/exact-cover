@@ -18,8 +18,8 @@ def read_json(data):
         columns=cols,
         dtype=int,
     )
-    for row_it in wiki_data:
-        df.loc[row_it, wiki_data[row_it]] = 1
+    for row_it in data:
+        df.loc[row_it, data[row_it]] = 1
 
     return df
 
