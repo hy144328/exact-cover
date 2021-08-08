@@ -4,7 +4,7 @@ import json
 import os
 import pytest
 
-from algo import Table, AlgorithmX
+from algo import IncidenceMatrix
 from . import read_json
 
 
@@ -23,13 +23,12 @@ class TestWiki:
         return read_json(data)
 
     @pytest.fixture
-    def table(self, data):
-        return Table(data)
+    def cover(self, data):
+        return IncidenceMatrix(data)
 
-    def test(self, table):
-        sols = []
-        AlgorithmX.solve(table, sols)
+    def test(self, cover):
+        cover.solve()
 
-        assert len(sols) == 1
-        assert tuple(sorted(sols[0])) == ("B", "D", "F")
+        assert len(cover.solutions) == 1
+        assert tuple(sorted(cover.solutions[0])) == ("B", "D", "F")
 
