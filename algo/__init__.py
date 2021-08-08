@@ -7,34 +7,34 @@ class Table(pd.DataFrame):
     def __init__(self, df):
         super().__init__(df)
 
-    def choose_rows(self, col) -> list:
-        return [row_it for row_it in self.index if self.at[row_it, col] == 1]
+    def choose_rows(self, col) -> tuple:
+        return tuple(row_it for row_it in self.index if self.at[row_it, col] == 1)
 
-    def choose_cols(self, row) -> list:
-        return [col_it for col_it in self.columns if self.at[row, col_it] == 1]
+    def choose_cols(self, row) -> tuple:
+        return tuple(col_it for col_it in self.columns if self.at[row, col_it] == 1)
 
-    def delete_rows(self, rows: list) -> "Table":
+    def delete_rows(self, rows: tuple) -> "Table":
         new_index = [e for e in self.index if e not in set(rows)]
         return Table(self.loc[new_index, :])
 
-    def delete_cols(self, cols: list) -> "Table":
+    def delete_cols(self, cols: tuple) -> "Table":
         new_columns = [e for e in self.columns if e not in set(cols)]
         return Table(self.loc[:, new_columns])
 
 
 class AlgorithmX:
     @classmethod
-    def solve(cls, A: Table, sols: list, res: list = None) -> list:
+    def solve(cls, A: Table, sols: list[tuple], res: tuple = None):
         if len(A.columns) == 0:
             sols.append(res)
             return
 
         if not res:
-            res = []
+            res = tuple()
 
         col = next(iter(A.columns))
         for row_it in A.choose_rows(col):
-            res_it = res + [row_it]
+            res_it = res + (row_it, )
             cols_removed = A.choose_cols(row_it)
 
             rows_removed = set()
