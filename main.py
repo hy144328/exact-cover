@@ -18,6 +18,7 @@ df = io.read_json(wiki_data)
 t = Table(df)
 print(t)
 
-res, stat = AlgorithmX.solve(t)
-print(res)
+sols = []
+AlgorithmX.solve(t, sols)
+print(sols)
 

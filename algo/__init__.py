@@ -24,12 +24,13 @@ class Table(pd.DataFrame):
 
 class AlgorithmX:
     @classmethod
-    def solve(cls, A: Table, res=None) -> list:
+    def solve(cls, A: Table, sols: list, res: list = None) -> list:
+        if len(A.columns) == 0:
+            sols.append(res)
+            return
+
         if not res:
             res = []
-
-        if len(A.columns) == 0:
-            return res, True
 
         col = next(iter(A.columns))
         for row_it in A.choose_rows(col):
@@ -43,9 +44,5 @@ class AlgorithmX:
             new_A = A
             new_A = new_A.delete_rows(rows_removed)
             new_A = new_A.delete_cols(cols_removed)
-            new_res, new_stat = cls.solve(new_A, res_it)
-            if new_stat:
-                return new_res, True
-
-        return res, False
+            cls.solve(new_A, sols, res_it)
 
