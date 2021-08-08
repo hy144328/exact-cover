@@ -5,7 +5,8 @@ import os
 import pytest
 
 from algo import Table, AlgorithmX
-from cover import io
+from . import read_json
+
 
 class TestWiki:
     @pytest.fixture
@@ -19,7 +20,7 @@ class TestWiki:
     def data(self, file_path):
         with open(file_path, 'r') as f:
             data = json.load(f)
-        return io.read_json(data)
+        return read_json(data)
 
     @pytest.fixture
     def table(self, data):
