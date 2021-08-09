@@ -59,4 +59,3 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         self.current_columns = [col_it for col_it in self.columns if col_it in self.current_columns or col_it in set(cols)]
         self.current = self.loc[self.current_index, self.current_columns]
 
-
