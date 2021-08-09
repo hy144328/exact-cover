@@ -4,7 +4,8 @@ import json
 import os
 import pytest
 
-from . import IncidenceMatrix, AlgorithmX
+from . import AlgorithmX
+from .incidence import IncidenceMatrix
 
 
 class TestWiki:
