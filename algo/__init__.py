@@ -5,18 +5,18 @@ import pandas as pd
 
 
 class Cover:
-    def solve(self, res: tuple = None):
-        if not res:
-            self.solutions = []
+    def solve(self, solutions: list[tuple] = None, res: tuple = None):
+        if solutions is None:
+            solutions = []
+
+        if res is None:
+            res = tuple()
 
         try:
             col = self.next_col()
         except IndexError:
-            self.solutions.append(res)
-            return
-
-        if not res:
-            res = tuple()
+            solutions.append(res)
+            return solutions
 
         for row_it in self.choose_rows(col):
             res_it = res + (row_it, )
@@ -29,10 +29,12 @@ class Cover:
             self.delete_rows(rows_removed)
             self.delete_cols(cols_removed)
 
-            self.solve(res_it)
+            self.solve(solutions, res_it)
 
             self.restore_cols(cols_removed)
             self.restore_rows(rows_removed)
+
+        return solutions
 
     @abc.abstractmethod
     def next_col(self):

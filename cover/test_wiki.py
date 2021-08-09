@@ -27,8 +27,8 @@ class TestWiki:
         return IncidenceMatrix(data)
 
     def test(self, cover):
-        cover.solve()
+        solutions = cover.solve()
 
-        assert len(cover.solutions) == 1
-        assert tuple(sorted(cover.solutions[0])) == ("B", "D", "F")
+        assert len(solutions) == 1
+        assert tuple(sorted(solutions[0])) == ("B", "D", "F")
 
