@@ -4,7 +4,7 @@ import json
 import os
 import pytest
 
-from algo import IncidenceMatrix
+from algo import IncidenceMatrix, AlgorithmX
 from . import read_json
 
 
@@ -27,7 +27,7 @@ class TestWiki:
         return IncidenceMatrix(data)
 
     def test(self, cover):
-        solutions = cover.solve()
+        solutions = AlgorithmX.solve(cover)
 
         assert len(solutions) == 1
         assert tuple(sorted(solutions[0])) == ("B", "D", "F")

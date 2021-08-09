@@ -5,37 +5,6 @@ import pandas as pd
 
 
 class Cover:
-    def solve(self, solutions: list[tuple] = None, res: tuple = None):
-        if solutions is None:
-            solutions = []
-
-        if res is None:
-            res = tuple()
-
-        try:
-            col = self.next_col()
-        except IndexError:
-            solutions.append(res)
-            return solutions
-
-        for row_it in self.choose_rows(col):
-            res_it = res + (row_it, )
-            cols_removed = self.choose_cols(row_it)
-
-            rows_removed = set()
-            for col_it in cols_removed:
-                rows_removed |= set(self.choose_rows(col_it))
-
-            self.delete_rows(rows_removed)
-            self.delete_cols(cols_removed)
-
-            self.solve(solutions, res_it)
-
-            self.restore_cols(cols_removed)
-            self.restore_rows(rows_removed)
-
-        return solutions
-
     @abc.abstractmethod
     def next_col(self):
         ...
@@ -97,4 +66,38 @@ class IncidenceMatrix(Cover, pd.DataFrame):
     def restore_cols(self, cols: tuple):
         self.current_columns = [col_it for col_it in self.columns if col_it in self.current_columns or col_it in cols]
         self.current = self.loc[self.current_index, self.current_columns]
+
+
+class AlgorithmX:
+    @staticmethod
+    def solve(A: Cover, solutions: list[tuple] = None, res: tuple = None):
+        if solutions is None:
+            solutions = []
+
+        if res is None:
+            res = tuple()
+
+        try:
+            col = A.next_col()
+        except IndexError:
+            solutions.append(res)
+            return solutions
+
+        for row_it in A.choose_rows(col):
+            res_it = res + (row_it, )
+            cols_removed = A.choose_cols(row_it)
+
+            rows_removed = set()
+            for col_it in cols_removed:
+                rows_removed |= set(A.choose_rows(col_it))
+
+            A.delete_rows(rows_removed)
+            A.delete_cols(cols_removed)
+
+            AlgorithmX.solve(A, solutions, res_it)
+
+            A.restore_cols(cols_removed)
+            A.restore_rows(rows_removed)
+
+        return solutions
 
