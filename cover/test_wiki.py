@@ -4,8 +4,7 @@ import json
 import os
 import pytest
 
-from algo import IncidenceMatrix, AlgorithmX
-from . import read_json
+from . import IncidenceMatrix, AlgorithmX
 
 
 class TestWiki:
@@ -20,11 +19,11 @@ class TestWiki:
     def data(self, file_path):
         with open(file_path, 'r') as f:
             data = json.load(f)
-        return read_json(data)
+        return data
 
     @pytest.fixture
     def cover(self, data):
-        return IncidenceMatrix(data)
+        return IncidenceMatrix.read_json(data)
 
     def test(self, cover):
         solutions = AlgorithmX.solve(cover)
