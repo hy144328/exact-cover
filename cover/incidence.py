@@ -35,7 +35,8 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         return IncidenceMatrix(df)
 
     def next_col(self):
-        return self.current_columns[0]
+        sorted_columns = sorted(self.current_columns, key=lambda x: sum(self.current.loc[:, x] == 1))
+        return sorted_columns[0]
 
     def choose_rows(self, col) -> Iterable:
         return (row_it for row_it in self.current_index if self.at[row_it, col] == 1)
