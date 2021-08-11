@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-from collections.abc import Iterable
-import pandas as pd
-
 from cover import incidence as cover_incidence
 
 
