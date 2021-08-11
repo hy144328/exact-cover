@@ -13,8 +13,6 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
 
         rows = IncidenceMatrix.build_index(df)
         cols = IncidenceMatrix.build_columns(df)
-        print(cols)
-        print(len(cols), len(cols) // 3)
         new_df = pd.DataFrame(
             0,
             index=rows,
@@ -30,6 +28,8 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
 
                 for val_it in range(1, 10):
                     index_it = str(row_it) + str(col_it) + str(val_it)
+                    if index_it not in new_df.index:
+                        continue
 
                     # Row.
                     column_it = "r" + str(row_it) + str(val_it)
@@ -51,7 +51,6 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
                     if column_it in new_df.columns:
                         new_df.loc[index_it, column_it] = 1
 
-        print(new_df)
         return IncidenceMatrix(new_df)
 
     @staticmethod
@@ -62,6 +61,12 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
             for col_it in range(9)
             for val_it in range(1, 10)
             if df.at[row_it, col_it] == " "
+            and str(val_it) not in set(df.loc[row_it, :])
+            and str(val_it) not in set(df.loc[:, col_it])
+            and str(val_it) not in df.loc[
+                (3 * (row_it // 3)):(3 * (row_it // 3) + 2),
+                (3 * (col_it // 3)):(3 * (col_it // 3) + 2)
+            ].values
         ]
 
     @staticmethod
