@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 import pandas as pd
 
 from . import Cover
 
 
 class IncidenceMatrix(Cover, pd.DataFrame):
-    def __init__(self, df) -> "IncidenceMatrix":
+    def __init__(self, df: pd.DataFrame) -> "IncidenceMatrix":
         super().__init__(df)
 
-        self.current_index = self.index
-        self.current_columns = self.columns
-        self.current = self.loc[self.current_index, self.current_columns]
+        self.current_index: list = self.index
+        self.current_columns: list = self.columns
+        self.current: pd.DataFrame = self.loc[self.current_index, self.current_columns]
 
     @staticmethod
-    def read_json(data: dict[object, list]) -> "IncidenceMatrix":
+    def read_json(data: dict[object, Sequence]) -> "IncidenceMatrix":
         rows = list(data.keys())
         no_rows = len(rows)
 
