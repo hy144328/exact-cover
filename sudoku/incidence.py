@@ -9,8 +9,8 @@ from cover import incidence as cover_incidence
 
 
 class IncidenceMatrix(cover_incidence.IncidenceMatrix):
-    @staticmethod
-    def read_csv(file_path: str) -> "IncidenceMatrix":
+    @classmethod
+    def read_csv(cls, file_path: str) -> "IncidenceMatrix":
         with open(file_path, 'r') as f:
             df = pd.read_csv(f, header=None)
 
@@ -45,7 +45,8 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
                         new_df.loc[choice_it, constraint_it] = 1
 
                     # Block.
-                    constraint_it = "b" + str(3 * (row_it // 3) + (col_it // 3)) + str(val_it)
+                    block_it = cls.index_block(row_it, col_it)
+                    constraint_it = "b" + str(block_it) + str(val_it)
                     if constraint_it in new_df.columns:
                         new_df.loc[choice_it, constraint_it] = 1
 
@@ -63,13 +64,10 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
             for row_it in range(9)
             for col_it in range(9)
             for val_it in range(1, 10)
-            if df.at[row_it, col_it] == " "
-            and str(val_it) not in set(df.loc[row_it, :])
-            and str(val_it) not in set(df.loc[:, col_it])
-            and str(val_it) not in df.loc[
-                (3 * (row_it // 3)):(3 * (row_it // 3) + 2),
-                (3 * (col_it // 3)):(3 * (col_it // 3) + 2)
-            ].values
+            if cls.check_position(df, row_it, col_it)
+            and cls.check_row(df, row_it, val_it)
+            and cls.check_column(df, col_it, val_it)
+            and cls.check_block(df, cls.index_block(row_it, col_it), val_it)
         ]
 
     @classmethod
@@ -128,3 +126,10 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
     def check_position(df: pd.DataFrame, row: int, col: int) -> bool:
         return df.at[row, col] == " "
 
+    @staticmethod
+    def index_block(row: int, col: int) -> int:
+        return 3 * (row // 3) + (col // 3)
+
+    @staticmethod
+    def index_choice(row: int, col: int, val: int) -> str:
+        return str(row) + str(col) + str(val)

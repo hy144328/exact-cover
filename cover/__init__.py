@@ -66,4 +66,3 @@ class AlgorithmX:
             A.restore_rows(rows_removed)
 
         return solutions
-

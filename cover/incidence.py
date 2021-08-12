@@ -17,11 +17,8 @@ class IncidenceMatrix(Cover, pd.DataFrame):
     @staticmethod
     def read_json(data: dict[object, Sequence]) -> "IncidenceMatrix":
         rows = list(data.keys())
-        no_rows = len(rows)
-
         cols = set()
         cols = list(cols.union(*data.values()))
-        no_cols = len(cols)
 
         df = pd.DataFrame(
             0,
@@ -35,7 +32,10 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         return IncidenceMatrix(df)
 
     def next_col(self):
-        sorted_columns = sorted(self.current_columns, key=lambda x: sum(self.current.loc[:, x] == 1))
+        sorted_columns = sorted(
+            self.current_columns,
+            key=lambda x: sum(self.current.loc[:, x] == 1),
+        )
         return sorted_columns[0]
 
     def choose_rows(self, col) -> Iterable:
@@ -45,18 +45,35 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         return (col_it for col_it in self.current_columns if self.at[row, col_it] == 1)
 
     def delete_rows(self, rows: Iterable):
-        self.current_index = [row_it for row_it in self.current_index if row_it not in set(rows)]
+        self.current_index = [
+            row_it
+            for row_it in self.current_index
+            if row_it not in set(rows)
+        ]
         self.current = self.loc[self.current_index, self.current_columns]
 
     def delete_cols(self, cols: Iterable):
-        self.current_columns = [col_it for col_it in self.current_columns if col_it not in set(cols)]
+        self.current_columns = [
+            col_it
+            for col_it in self.current_columns
+            if col_it not in set(cols)
+        ]
         self.current = self.loc[self.current_index, self.current_columns]
 
     def restore_rows(self, rows: Iterable):
-        self.current_index = [row_it for row_it in self.index if row_it in self.current_index or row_it in set(rows)]
+        self.current_index = [
+            row_it
+            for row_it in self.index
+            if row_it in self.current_index
+            or row_it in set(rows)
+        ]
         self.current = self.loc[self.current_index, self.current_columns]
 
     def restore_cols(self, cols: Iterable):
-        self.current_columns = [col_it for col_it in self.columns if col_it in self.current_columns or col_it in set(cols)]
+        self.current_columns = [
+            col_it
+            for col_it in self.columns
+            if col_it in self.current_columns
+            or col_it in set(cols)
+        ]
         self.current = self.loc[self.current_index, self.current_columns]
-

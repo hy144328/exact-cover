@@ -10,4 +10,3 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
     def read_json(data: dict[object, Sequence]) -> "IncidenceMatrix":
         df = cover_incidence.IncidenceMatrix.read_json(data)
         return IncidenceMatrix(df.T)
-

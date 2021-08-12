@@ -32,4 +32,3 @@ class TestWiki:
 
         assert len(solutions) == 1
         assert tuple(sorted(solutions[0])) == ("B", "D", "F")
-

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import json
 import os
 import pytest
 
@@ -26,4 +25,3 @@ class TestWiki:
 
         assert len(solutions) == 1
         assert tuple(sorted(solutions[0])) == (1, 2, 5)
-
