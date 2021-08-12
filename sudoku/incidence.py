@@ -120,8 +120,8 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
         return np.count_nonzero(df.iloc[row:row + 3, col:col + 3] == str(val)) == no_occurrences
 
     @staticmethod
-    def check_position(df: pd.DataFrame, row: int, col: int) -> bool:
-        return df.at[row, col] == " "
+    def check_position(df: pd.DataFrame, row: int, col: int, no_occurrences=0) -> bool:
+        return len(df.at[row, col].strip()) == no_occurrences
 
     @staticmethod
     def index_block(row: int, col: int) -> int:
