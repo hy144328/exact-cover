@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from collections.abc import Sequence
+
 import pandas as pd
 
 from cover import incidence as cover_incidence
@@ -7,7 +9,7 @@ from cover import incidence as cover_incidence
 
 class IncidenceMatrix(cover_incidence.IncidenceMatrix):
     @staticmethod
-    def read_csv(file_path):
+    def read_csv(file_path: str) -> "IncidenceMatrix":
         with open(file_path, 'r') as f:
             df = pd.read_csv(f, header=None)
 
@@ -54,7 +56,7 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
         return IncidenceMatrix(new_df)
 
     @staticmethod
-    def build_index(df):
+    def build_index(df: pd.DataFrame) -> Sequence:
         return [
             str(row_it) + str(col_it) + str(val_it)
             for row_it in range(9)
@@ -70,7 +72,7 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
         ]
 
     @staticmethod
-    def build_columns(df):
+    def build_columns(df: pd.DataFrame) -> Sequence:
         res = []
 
         # Rows.
