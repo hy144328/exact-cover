@@ -30,28 +30,28 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
                     continue
 
                 for val_it in range(1, 10):
-                    choice_it = str(row_it) + str(col_it) + str(val_it)
+                    choice_it = cls.index_choice(row_it, col_it, val_it)
                     if choice_it not in new_df.index:
                         continue
 
                     # Row.
-                    constraint_it = "r" + str(row_it) + str(val_it)
+                    constraint_it = cls.index_constraint_row(row_it, val_it)
                     if constraint_it in new_df.columns:
                         new_df.loc[choice_it, constraint_it] = 1
 
                     # Column.
-                    constraint_it = "c" + str(col_it) + str(val_it)
+                    constraint_it = cls.index_constraint_column(col_it, val_it)
                     if constraint_it in new_df.columns:
                         new_df.loc[choice_it, constraint_it] = 1
 
                     # Block.
                     block_it = cls.index_block(row_it, col_it)
-                    constraint_it = "b" + str(block_it) + str(val_it)
+                    constraint_it = cls.index_constraint_block(block_it, val_it)
                     if constraint_it in new_df.columns:
                         new_df.loc[choice_it, constraint_it] = 1
 
                     # Position.
-                    constraint_it = "p" + str(row_it) + str(col_it)
+                    constraint_it = cls.index_constraint_position(row_it, col_it)
                     if constraint_it in new_df.columns:
                         new_df.loc[choice_it, constraint_it] = 1
 
@@ -60,7 +60,7 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
     @classmethod
     def build_index(cls, df: pd.DataFrame) -> Sequence:
         return [
-            str(row_it) + str(col_it) + str(val_it)
+            cls.index_choice(row_it, col_it, val_it)
             for row_it in range(9)
             for col_it in range(9)
             for val_it in range(1, 10)
@@ -76,7 +76,7 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
 
         # Rows.
         res += [
-            "r" + str(constraint_idx) + str(constraint_val)
+            cls.index_constraint_row(constraint_idx, constraint_val)
             for constraint_idx in range(9)
             for constraint_val in range(1, 10)
             if cls.check_row(df, constraint_idx, constraint_val)
@@ -84,7 +84,7 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
 
         # Columns.
         res += [
-            "c" + str(constraint_idx) + str(constraint_val)
+            cls.index_constraint_column(constraint_idx, constraint_val)
             for constraint_idx in range(9)
             for constraint_val in range(1, 10)
             if cls.check_column(df, constraint_idx, constraint_val)
@@ -92,7 +92,7 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
 
         # Blocks.
         res += [
-            "b" + str(constraint_idx) + str(constraint_val)
+            cls.index_constraint_block(constraint_idx, constraint_val)
             for constraint_idx in range(9)
             for constraint_val in range(1, 10)
             if cls.check_block(df, constraint_idx, constraint_val)
@@ -100,7 +100,7 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
 
         # Positions.
         res += [
-            "p" + str(row_it) + str(col_it)
+            cls.index_constraint_position(row_it, col_it)
             for row_it in range(9)
             for col_it in range(9)
             if cls.check_position(df, row_it, col_it)
@@ -133,3 +133,23 @@ class IncidenceMatrix(cover_incidence.IncidenceMatrix):
     @staticmethod
     def index_choice(row: int, col: int, val: int) -> str:
         return str(row) + str(col) + str(val)
+
+    @staticmethod
+    def _index_constraint(type_id: str, idx: int, val: int) -> str:
+        return type_id + str(idx) + str(val)
+
+    @classmethod
+    def index_constraint_row(cls, idx: int, val: int) -> str:
+        return cls._index_constraint("r", idx, val)
+
+    @classmethod
+    def index_constraint_column(cls, idx: int, val: int) -> str:
+        return cls._index_constraint("c", idx, val)
+
+    @classmethod
+    def index_constraint_block(cls, idx: int, val: int) -> str:
+        return cls._index_constraint("b", idx, val)
+
+    @classmethod
+    def index_constraint_position(cls, row: int, col: int) -> str:
+        return "p" + str(row) + str(col)
