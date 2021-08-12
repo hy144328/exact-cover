@@ -7,7 +7,7 @@ from . import Cover
 
 
 class IncidenceMatrix(Cover, pd.DataFrame):
-    def __init__(self, df):
+    def __init__(self, df) -> "IncidenceMatrix":
         super().__init__(df)
 
         self.current_index = self.index
@@ -15,7 +15,7 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         self.current = self.loc[self.current_index, self.current_columns]
 
     @staticmethod
-    def read_json(data):
+    def read_json(data: dict[object, list]) -> "IncidenceMatrix":
         rows = list(data.keys())
         no_rows = len(rows)
 
