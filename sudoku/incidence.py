@@ -10,10 +10,7 @@ from cover import incidence as cover_incidence
 
 class IncidenceMatrix(cover_incidence.IncidenceMatrix):
     @classmethod
-    def read_csv(cls, file_path: str) -> "IncidenceMatrix":
-        with open(file_path, 'r') as f:
-            df = pd.read_csv(f, header=None)
-
+    def read_csv(cls, df: pd.DataFrame) -> "IncidenceMatrix":
         choices = IncidenceMatrix.build_index(df)
         constraints = IncidenceMatrix.build_columns(df)
         new_df = pd.DataFrame(

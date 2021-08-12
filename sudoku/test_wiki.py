@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import pandas as pd
 import pytest
 
 from cover import AlgorithmX
@@ -16,10 +17,17 @@ class TestWiki:
         )
 
     @pytest.fixture
-    def cover(self, file_path):
-        return IncidenceMatrix.read_csv(file_path)
+    def df(self, file_path: str) -> pd.DataFrame:
+        with open(file_path, 'r') as f:
+            df = pd.read_csv(f, header=None)
+        return df
 
-    def test(self, cover):
+    @pytest.fixture
+    def cover(self, df: pd.DataFrame) -> IncidenceMatrix:
+        return IncidenceMatrix.read_csv(df)
+
+    def test(self, cover: IncidenceMatrix):
+        print(cover)
         solutions = AlgorithmX.solve(cover)
         print(solutions)
 
