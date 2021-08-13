@@ -41,9 +41,8 @@ class Node:
 
 
 class ChoiceNode(Node):
-    def __init__(self, name) -> "ChoiceNode":
-        super().__init__(left=self, right=self)
-        self.choice = name
+    def __init__(self) -> "ChoiceNode":
+        super().__init__()
         self.no_constraints: int = 0
 
     def cut_above(self):
@@ -60,9 +59,8 @@ class ChoiceNode(Node):
 
 
 class ConstraintNode(Node):
-    def __init__(self, name) -> "ConstraintNode":
-        super().__init__(above=self, below=self)
-        self.constraint = name
+    def __init__(self) -> "ConstraintNode":
+        super().__init__()
         self.no_choices: int = 0
 
     def cut_left(self):
