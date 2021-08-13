@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 
 from . import Cover
 
@@ -41,8 +41,9 @@ class Node:
 
 
 class ChoiceNode(Node):
-    def __init__(self) -> "ChoiceNode":
+    def __init__(self, name) -> "ChoiceNode":
         super().__init__()
+        self.choice = name
         self.no_constraints: int = 0
 
     def cut_above(self):
@@ -59,8 +60,9 @@ class ChoiceNode(Node):
 
 
 class ConstraintNode(Node):
-    def __init__(self) -> "ConstraintNode":
+    def __init__(self, name) -> "ConstraintNode":
         super().__init__()
+        self.constraint = name
         self.no_choices: int = 0
 
     def cut_left(self):
@@ -77,25 +79,25 @@ class ConstraintNode(Node):
 
 
 class DancingLinks(Cover):
-    def __init__(self, rows: Iterable, cols: Iterable) -> "DancingLinks":
+    def __init__(self, choices: Sequence, constraints: Sequence) -> "DancingLinks":
         self.choices: dict[object, ChoiceNode] = {
-            row_it: ChoiceNode() for row_it in rows
+            choice_it: ChoiceNode(choice_it) for choice_it in choices
         }
         self.constraints: dict[object, ConstraintNode] = {
-            col_it: ConstraintNode() for col_it in cols
+            constraint_it: ConstraintNode(constraint_it) for constraint_it in constraints
         }
         self.stack: list = []
 
     @staticmethod
-    def read_json(data: dict[object, Sequence]) -> "DancingLinks":
-        rows = list(data.keys())
-        cols = set()
-        cols = list(cols.union(*data.values()))
+    def read_json(data: dict[object, list]) -> "DancingLinks":
+        choices = list(data.keys())
+        constraints = set()
+        constraints = list(constraints.union(*data.values()))
 
-        res = DancingLinks(rows, cols)
-        for row_it in data:
-            for col_it in data[row_it]:
-                res.insert(Node(), row_it, col_it)
+        res = DancingLinks(choices, constraints)
+        for choice_it in data:
+            for constraint_it in data[choice_it]:
+                res.insert(Node(), choice_it, constraint_it)
 
         return res
 
@@ -119,8 +121,8 @@ class DancingLinks(Cover):
         self.stack.append(node)
 
     def insert(self, node: Node, left, above):
-        node_choice = self.choices[left]
-        node_constraint = self.constraints[above]
+        node_choice: ChoiceNode = self.choices[left]
+        node_constraint: ConstraintNode = self.constraints[above]
 
         node.left = node_choice
         node.right = node_choice.right
@@ -132,8 +134,8 @@ class DancingLinks(Cover):
 
         self.push(node)
 
-    def choose_choices(self, col) -> Iterable:
-        node = self.constraints[col]
+    def choose_choices(self, constraint) -> Sequence:
+        node = self.constraints[constraint]
         res = []
 
         node_it = node.below
@@ -143,8 +145,8 @@ class DancingLinks(Cover):
 
         return res
 
-    def choose_constraints(self, row) -> Iterable:
-        node = self.choices[row]
+    def choose_constraints(self, choice) -> Sequence:
+        node = self.choices[choice]
         res = []
 
         node_it = node.right
@@ -154,37 +156,37 @@ class DancingLinks(Cover):
 
         return res
 
-    def delete_choices(self, rows: Iterable):
-        for row_it in rows:
-            node_it: ChoiceNode = self.choices.pop(row_it)
+    def delete_choices(self, choices: Sequence):
+        for choice_it in choices:
+            node_it: ChoiceNode = self.choices.pop(choice_it)
             while node_it is not node_it.right:
                 self.pop(node_it)
                 node_it = node_it.right
             self.pop(node_it)
 
-    def delete_constraints(self, cols: Iterable):
-        for col_it in cols:
-            node_it: ConstraintNode = self.constraints.pop(col_it)
+    def delete_constraints(self, constraints: Sequence):
+        for constraint_it in constraints:
+            node_it: ConstraintNode = self.constraints.pop(constraint_it)
             while node_it is not node_it.below:
                 self.pop(node_it)
                 node_it = node_it.below
             self.pop(node_it)
 
-    def restore_choices(self, rows: Iterable):
-        for row_it in rows:
+    def restore_choices(self, choices: Sequence):
+        for choice_it in choices:
             node_it: Node = self.push()
             while not isinstance(node_it, ChoiceNode):
                 node_it = self.push()
-            self.choices[row_it] = node_it
+            self.choices[choice_it] = node_it
 
-    def restore_constraints(self, cols: Iterable):
-        for col_it in cols:
+    def restore_constraints(self, constraints: Sequence):
+        for constraint_it in constraints:
             node_it: Node = self.push()
             while not isinstance(node_it, ConstraintNode):
                 node_it = self.push()
-            self.constraints[col_it] = node_it
+            self.constraints[constraint_it] = node_it
 
-    def next_col(self):
+    def next_constraint(self):
         try:
             return min(self.constraints)
         except ValueError:
