@@ -13,8 +13,8 @@ class Node:
         self.above: Node = self
         self.below: Node = self
 
-        self.choice: str = None
-        self.constraint: str = None
+        self.choice = None
+        self.constraint = None
 
     def cut_left(self):
         self.left.right = self.right
@@ -42,9 +42,9 @@ class Node:
 
 
 class ChoiceNode(Node):
-    def __init__(self, name: str) -> "ChoiceNode":
+    def __init__(self, name) -> "ChoiceNode":
         super().__init__(left=self, right=self)
-        self.choice: str = name
+        self.choice = name
         self.no_constraints: int = 0
 
     def cut_above(self):
@@ -61,9 +61,9 @@ class ChoiceNode(Node):
 
 
 class ConstraintNode(Node):
-    def __init__(self, name: str) -> "ConstraintNode":
+    def __init__(self, name) -> "ConstraintNode":
         super().__init__(above=self, below=self)
-        self.constraint: str = name
+        self.constraint = name
         self.no_choices: int = 0
 
     def cut_left(self):
@@ -81,27 +81,33 @@ class ConstraintNode(Node):
 
 class DancingLinks(Cover):
     def __init__(self) -> "DancingLinks":
-        self.choices: dict[str, ChoiceNode] = {}
-        self.constraints: dict[str, ConstraintNode] = {}
+        self.choices: dict[object, ChoiceNode] = {}
+        self.constraints: dict[object, ConstraintNode] = {}
+        self.stack: list = []
 
-    def push(self, node: Node):
+    def push(self):
+        node: Node = self.stack.pop()
+
         node.attach_left()
         node.attach_right()
         node.attach_above()
         node.attach_below()
 
-    def pop(self, node: Node) -> Node:
+    def pop(self, node: Node):
         node.cut_left()
         node.cut_right()
         node.cut_above()
         node.cut_below()
-        return node
+
+        self.stack.append(node)
 
     def insert(self, node: Node, left: ChoiceNode, above: ConstraintNode):
         node.left = left
         node.right = left.right
         node.above = above
         node.below = above.below
+
+        self.stack.append(node)
         self.push(node)
 
     def choose_rows(self, col) -> Iterable:
