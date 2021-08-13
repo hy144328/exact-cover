@@ -117,13 +117,16 @@ class DancingLinks(Cover):
         self.stack.append(node)
 
     def insert(self, node: Node, left, above):
-        node.choice = self.choices[left]
-        node.constraint = self.constraints[above]
+        node_choice = self.choices[left]
+        node_constraint = self.constraints[above]
 
-        node.left = choice
-        node.right = choice.right
-        node.above = constraint
-        node.below = constraint.below
+        node.left = node_choice
+        node.right = node_choice.right
+        node.above = node_constraint
+        node.below = node_constraint.below
+
+        node.choice = left
+        node.constraint = above
 
         self.push(node)
 
