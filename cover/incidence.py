@@ -10,24 +10,24 @@ class IncidenceMatrix(Cover, pd.DataFrame):
     def __init__(self, df: pd.DataFrame) -> "IncidenceMatrix":
         super().__init__(df)
 
-        self.choices: list = self.index
-        self.constraints: list = self.columns
+        self.choices: list = list(self.index)
+        self.constraints: list = list(self.columns)
         self.current: pd.DataFrame = self.loc[self.choices, self.constraints]
 
     @staticmethod
-    def read_json(data: dict[object, Sequence]) -> "IncidenceMatrix":
-        rows = list(data.keys())
-        cols = set()
-        cols = list(cols.union(*data.values()))
+    def read_json(data: dict[object, list]) -> "IncidenceMatrix":
+        choices = list(data.keys())
+        constraints = set()
+        constraints = list(constraints.union(*data.values()))
 
         df = pd.DataFrame(
-            0,
-            index=rows,
-            columns=cols,
-            dtype=int,
+            False,
+            index=choices,
+            columns=constraints,
+            dtype=bool,
         )
-        for row_it in data:
-            df.loc[row_it, data[row_it]] = 1
+        for choice_it in data:
+            df.loc[choice_it, data[choice_it]] = True
 
         return IncidenceMatrix(df)
 
