@@ -6,9 +6,10 @@ import pytest
 
 from cover import AlgorithmX
 from .incidence import IncidenceMatrix
+from .links import DancingLinks
 
 
-class TestWiki:
+class Wiki:
     @pytest.fixture
     def file_path(self):
         return os.path.join(
@@ -53,3 +54,15 @@ class TestWiki:
         for row_it in range(9):
             for col_it in range(9):
                 assert IncidenceMatrix.check_position(df, row_it, col_it, 1)
+
+
+class TestWikiIncidenceMatrix(Wiki):
+    @pytest.fixture
+    def cover(self, df: pd.DataFrame) -> IncidenceMatrix:
+        return IncidenceMatrix.read_csv(df)
+
+
+class TestWikiDancingLinks(Wiki):
+    @pytest.fixture
+    def cover(self, df: pd.DataFrame) -> DancingLinks:
+        return DancingLinks.read_csv(df)
