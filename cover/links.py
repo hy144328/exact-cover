@@ -5,19 +5,12 @@ from . import Cover
 
 
 class Node:
-    def __init__(
-        self,
-        val: bool = False,
-        left: Node = None,
-        right: Node = None,
-        above: Node = None,
-        below: Node = None,
-    ) -> "Node":
+    def __init__(self, val: bool = False) -> "Node":
         self.val = val
-        self.left = left
-        self.right = right
-        self.above = above
-        self.below = below
+        self.left = self
+        self.right = self
+        self.above = self
+        self.below = self
 
     def cut_left(self):
         self.left.right = self.right
@@ -45,9 +38,8 @@ class Node:
 
 
 class ChoiceNode(Node):
-    def __init__(self, name: str) -> "ChoiceNode":
+    def __init__(self) -> "ChoiceNode":
         super().__init__(left=self, right=self)
-        self.name: str = name
         self.no_constraints: int = 0
 
     def cut_above(self):
@@ -64,9 +56,8 @@ class ChoiceNode(Node):
 
 
 class ConstraintNode(Node):
-    def __init__(self, name: str) -> "ConstraintNode":
+    def __init__(self) -> "ConstraintNode":
         super().__init__(above=self, below=self)
-        self.name: str = name
         self.no_choices: int = 0
 
     def cut_left(self):
