@@ -47,35 +47,39 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         return (col_it for col_it in self.current_columns if self.at[row, col_it] == 1)
 
     def delete_rows(self, rows: Iterable):
+        rows = set(rows)
         self.current_index = [
             row_it
             for row_it in self.current_index
-            if row_it not in set(rows)
+            if row_it not in rows
         ]
         self.current = self.loc[self.current_index, self.current_columns]
 
     def delete_cols(self, cols: Iterable):
+        cols = set(cols)
         self.current_columns = [
             col_it
             for col_it in self.current_columns
-            if col_it not in set(cols)
+            if col_it not in cols
         ]
         self.current = self.loc[self.current_index, self.current_columns]
 
     def restore_rows(self, rows: Iterable):
+        rows = set(rows)
         self.current_index = [
             row_it
             for row_it in self.index
             if row_it in self.current_index
-            or row_it in set(rows)
+            or row_it in rows
         ]
         self.current = self.loc[self.current_index, self.current_columns]
 
     def restore_cols(self, cols: Iterable):
+        cols = set(cols)
         self.current_columns = [
             col_it
             for col_it in self.columns
             if col_it in self.current_columns
-            or col_it in set(cols)
+            or col_it in cols
         ]
         self.current = self.loc[self.current_index, self.current_columns]

@@ -51,18 +51,19 @@ class AlgorithmX:
 
         for row_it in A.choose_rows(col):
             res_it = res + (row_it, )
-            cols_removed = set(A.choose_cols(row_it))
+            cols_removed = list(A.choose_cols(row_it))
 
             rows_removed = set()
             for col_it in cols_removed:
                 rows_removed |= set(A.choose_rows(col_it))
+            rows_removed = list(rows_removed)
 
             A.delete_rows(rows_removed)
             A.delete_cols(cols_removed)
 
             AlgorithmX.solve(A, solutions, res_it)
 
-            A.restore_cols(cols_removed)
-            A.restore_rows(rows_removed)
+            A.restore_cols(reversed(cols_removed))
+            A.restore_rows(reversed(rows_removed))
 
         return solutions
