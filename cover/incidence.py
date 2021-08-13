@@ -47,7 +47,6 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         return [constraint_it for constraint_it in self.constraints if self.at[choice, constraint_it]]
 
     def delete_choices(self, choices: Sequence):
-        choices = set(choices)
         self.choices = [
             choice_it
             for choice_it in self.choices
@@ -56,7 +55,6 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         self.current = self.loc[self.choices, self.constraints]
 
     def delete_constraints(self, constraints: Sequence):
-        constraints = set(constraints)
         self.constraints = [
             constraint_it
             for constraint_it in self.constraints
@@ -65,7 +63,6 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         self.current = self.loc[self.choices, self.constraints]
 
     def restore_choices(self, choices: Sequence):
-        choices = set(choices)
         self.choices = [
             choice_it
             for choice_it in self.index
@@ -75,7 +72,6 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         self.current = self.loc[self.choices, self.constraints]
 
     def restore_constraints(self, constraints: Sequence):
-        constraints = set(constraints)
         self.constraints = [
             constraint_it
             for constraint_it in self.columns
