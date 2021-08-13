@@ -97,8 +97,11 @@ class DancingLinks(Cover):
             for col_it in data[row_it]:
                 res.insert(Node(), row_it, col_it)
 
-    def push(self):
-        node: Node = self.stack.pop()
+        return res
+
+    def push(self, node: Node = None):
+        if not node:
+            node: Node = self.stack.pop()
 
         node.attach_left()
         node.attach_right()
@@ -113,13 +116,15 @@ class DancingLinks(Cover):
 
         self.stack.append(node)
 
-    def insert(self, node: Node, left: ChoiceNode, above: ConstraintNode):
-        node.left = left
-        node.right = left.right
-        node.above = above
-        node.below = above.below
+    def insert(self, node: Node, left, above):
+        node.choice = self.choices[left]
+        node.constraint = self.constraints[above]
 
-        self.stack.append(node)
+        node.left = choice
+        node.right = choice.right
+        node.above = constraint
+        node.below = constraint.below
+
         self.push(node)
 
     def choose_rows(self, col) -> Iterable:
@@ -173,4 +178,4 @@ class DancingLinks(Cover):
                 self.insert(self.stack.pop())
 
     def next_col(self):
-        return self.constraints[0]
+        return next(iter(self.constraints))
