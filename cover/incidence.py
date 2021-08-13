@@ -35,16 +35,16 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         try:
             return min(
                 self.constraints,
-                key=lambda x: sum(self.current.loc[:, x] == 1),
+                key=lambda x: sum(self.current.loc[:, x]),
             )
         except ValueError:
             raise StopIteration
 
     def choose_choices(self, col) -> Sequence:
-        return (row_it for row_it in self.choices if self.at[row_it, col] == 1)
+        return [row_it for row_it in self.choices if self.at[row_it, col]]
 
     def choose_constraints(self, row) -> Sequence:
-        return (col_it for col_it in self.constraints if self.at[row, col_it] == 1)
+        return [col_it for col_it in self.constraints if self.at[row, col_it]]
 
     def delete_choices(self, rows: Sequence):
         rows = set(rows)
