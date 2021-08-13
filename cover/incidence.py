@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 import pandas as pd
 
 from . import Cover
@@ -40,13 +40,13 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         except ValueError:
             raise StopIteration
 
-    def choose_choices(self, col) -> Iterable:
+    def choose_choices(self, col) -> Sequence:
         return (row_it for row_it in self.choices if self.at[row_it, col] == 1)
 
-    def choose_constraints(self, row) -> Iterable:
+    def choose_constraints(self, row) -> Sequence:
         return (col_it for col_it in self.constraints if self.at[row, col_it] == 1)
 
-    def delete_choices(self, rows: Iterable):
+    def delete_choices(self, rows: Sequence):
         rows = set(rows)
         self.choices = [
             row_it
@@ -55,7 +55,7 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         ]
         self.current = self.loc[self.choices, self.constraints]
 
-    def delete_constraints(self, cols: Iterable):
+    def delete_constraints(self, cols: Sequence):
         cols = set(cols)
         self.constraints = [
             col_it
@@ -64,7 +64,7 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         ]
         self.current = self.loc[self.choices, self.constraints]
 
-    def restore_choices(self, rows: Iterable):
+    def restore_choices(self, rows: Sequence):
         rows = set(rows)
         self.choices = [
             row_it
@@ -74,7 +74,7 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         ]
         self.current = self.loc[self.choices, self.constraints]
 
-    def restore_constraints(self, cols: Iterable):
+    def restore_constraints(self, cols: Sequence):
         cols = set(cols)
         self.constraints = [
             col_it

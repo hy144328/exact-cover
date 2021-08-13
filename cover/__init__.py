@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import abc
-from collections.abc import Iterable
+from collections.abc import Sequence
 
 
 class Cover:
@@ -10,27 +10,27 @@ class Cover:
         ...
 
     @abc.abstractmethod
-    def choose_choices(self, col) -> Iterable:
+    def choose_choices(self, col) -> Sequence:
         ...
 
     @abc.abstractmethod
-    def choose_constraints(self, row) -> Iterable:
+    def choose_constraints(self, row) -> Sequence:
         ...
 
     @abc.abstractmethod
-    def delete_choices(self, rows: Iterable):
+    def delete_choices(self, rows: Sequence):
         ...
 
     @abc.abstractmethod
-    def delete_constraints(self, cols: Iterable):
+    def delete_constraints(self, cols: Sequence):
         ...
 
     @abc.abstractmethod
-    def restore_choices(self, rows: Iterable):
+    def restore_choices(self, rows: Sequence):
         ...
 
     @abc.abstractmethod
-    def restore_constraints(self, cols: Iterable):
+    def restore_constraints(self, cols: Sequence):
         ...
 
 
@@ -63,7 +63,7 @@ class AlgorithmX:
 
             AlgorithmX.solve(A, solutions, res_it)
 
-            A.restore_constraints(reversed(cols_removed))
-            A.restore_choices(reversed(rows_removed))
+            A.restore_constraints(list(reversed(cols_removed)))
+            A.restore_choices(list(reversed(rows_removed)))
 
         return solutions
