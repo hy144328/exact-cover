@@ -31,7 +31,7 @@ class IncidenceMatrix(Cover, pd.DataFrame):
 
         return IncidenceMatrix(df)
 
-    def next_col(self):
+    def next_constraint(self):
         try:
             return min(
                 self.constraints,
@@ -40,46 +40,46 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         except ValueError:
             raise StopIteration
 
-    def choose_choices(self, col) -> Sequence:
-        return [row_it for row_it in self.choices if self.at[row_it, col]]
+    def choose_choices(self, constraint) -> Sequence:
+        return [choice_it for choice_it in self.choices if self.at[choice_it, constraint]]
 
-    def choose_constraints(self, row) -> Sequence:
-        return [col_it for col_it in self.constraints if self.at[row, col_it]]
+    def choose_constraints(self, choice) -> Sequence:
+        return [constraint_it for constraint_it in self.constraints if self.at[choice, constraint_it]]
 
-    def delete_choices(self, rows: Sequence):
-        rows = set(rows)
+    def delete_choices(self, choices: Sequence):
+        choices = set(choices)
         self.choices = [
-            row_it
-            for row_it in self.choices
-            if row_it not in rows
+            choice_it
+            for choice_it in self.choices
+            if choice_it not in choices
         ]
         self.current = self.loc[self.choices, self.constraints]
 
-    def delete_constraints(self, cols: Sequence):
-        cols = set(cols)
+    def delete_constraints(self, constraints: Sequence):
+        constraints = set(constraints)
         self.constraints = [
-            col_it
-            for col_it in self.constraints
-            if col_it not in cols
+            constraint_it
+            for constraint_it in self.constraints
+            if constraint_it not in constraints
         ]
         self.current = self.loc[self.choices, self.constraints]
 
-    def restore_choices(self, rows: Sequence):
-        rows = set(rows)
+    def restore_choices(self, choices: Sequence):
+        choices = set(choices)
         self.choices = [
-            row_it
-            for row_it in self.index
-            if row_it in self.choices
-            or row_it in rows
+            choice_it
+            for choice_it in self.index
+            if choice_it in self.choices
+            or choice_it in choices
         ]
         self.current = self.loc[self.choices, self.constraints]
 
-    def restore_constraints(self, cols: Sequence):
-        cols = set(cols)
+    def restore_constraints(self, constraints: Sequence):
+        constraints = set(constraints)
         self.constraints = [
-            col_it
-            for col_it in self.columns
-            if col_it in self.constraints
-            or col_it in cols
+            constraint_it
+            for constraint_it in self.columns
+            if constraint_it in self.constraints
+            or constraint_it in constraints
         ]
         self.current = self.loc[self.choices, self.constraints]
