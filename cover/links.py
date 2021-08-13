@@ -131,3 +131,15 @@ class DancingLinks(Cover):
             node_it = node_it.right
 
         return res
+
+    def delete_rows(self, rows: Iterable):
+        for row_it in rows:
+            node: ChoiceNode = self.choices.pop(row_it)
+            while not isinstance(node.right, ChoiceNode):
+                self.pop(node.right)
+
+    def delete_cols(self, cols: Iterable):
+        for col_it in cols:
+            node: ConstraintNode = self.constraints.pop(col_it)
+            while not isinstance(node.below, ConstraintNode):
+                self.pop(node.below)
