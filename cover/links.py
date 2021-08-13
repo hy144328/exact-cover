@@ -5,9 +5,7 @@ from . import Cover
 
 
 class Node:
-    def __init__(self, val: bool = False) -> "Node":
-        self.val: bool = val
-
+    def __init__(self) -> "Node":
         self.left: Node = self
         self.right: Node = self
         self.above: Node = self
