@@ -143,3 +143,19 @@ class DancingLinks(Cover):
             node: ConstraintNode = self.constraints.pop(col_it)
             while not isinstance(node.below, ConstraintNode):
                 self.pop(node.below)
+
+    def restore_rows(self, rows: Iterable):
+        for row_it in rows:
+            node: ChoiceNode = self.stack.pop()
+            self.choices[row_it] = node
+
+            while not isinstance(self.stack[-1], ChoiceNode):
+                self.insert(self.stack.pop())
+
+    def restore_cols(self, cols: Iterable):
+        for col_it in rows:
+            node: ConstraintNode = self.stack.pop()
+            self.constraints[col_it] = node
+
+            while not isinstance(self.stack[-1], ConstraintNode):
+                self.insert(self.stack.pop())
