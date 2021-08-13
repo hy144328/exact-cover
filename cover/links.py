@@ -159,3 +159,6 @@ class DancingLinks(Cover):
 
             while not isinstance(self.stack[-1], ConstraintNode):
                 self.insert(self.stack.pop())
+
+    def next_col(self):
+        return self.constraints[0]
