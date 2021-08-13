@@ -157,28 +157,32 @@ class DancingLinks(Cover):
             node: ChoiceNode = self.choices.pop(row_it)
             while not isinstance(node.right, ChoiceNode):
                 self.pop(node.right)
+            self.pop(node)
 
     def delete_cols(self, cols: Iterable):
         for col_it in cols:
             node: ConstraintNode = self.constraints.pop(col_it)
             while not isinstance(node.below, ConstraintNode):
                 self.pop(node.below)
+            self.pop(node)
 
     def restore_rows(self, rows: Iterable):
         for row_it in rows:
             node: ChoiceNode = self.stack.pop()
             self.choices[row_it] = node
+            self.push(node)
 
             while self.stack and not isinstance(self.stack[-1], ChoiceNode):
-                self.push(self.stack.pop())
+                self.push()
 
     def restore_cols(self, cols: Iterable):
         for col_it in cols:
             node: ConstraintNode = self.stack.pop()
             self.constraints[col_it] = node
+            self.push(node)
 
             while self.stack and not isinstance(self.stack[-1], ConstraintNode):
-                self.push(self.stack.pop())
+                self.push()
 
     def next_col(self):
         return next(iter(self.constraints))
