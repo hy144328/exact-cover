@@ -78,10 +78,25 @@ class ConstraintNode(Node):
 
 
 class DancingLinks(Cover):
-    def __init__(self) -> "DancingLinks":
-        self.choices: dict[object, ChoiceNode] = {}
-        self.constraints: dict[object, ConstraintNode] = {}
+    def __init__(self, rows: Iterable, cols: Iterable) -> "DancingLinks":
+        self.choices: dict[object, ChoiceNode] = {
+            row_it: ChoiceNode() for row_it in rows
+        }
+        self.constraints: dict[object, ConstraintNode] = {
+            col_it: ConstraintNode() for col_it in cols
+        }
         self.stack: list = []
+
+    @staticmethod
+    def read_json(data: dict[object, Sequence]) -> "DancingLinks":
+        rows = list(data.keys())
+        cols = set()
+        cols = list(cols.union(*data.values()))
+
+        res = DancingLinks(rows, cols)
+        for row_it in data:
+            for col_it in data[row_it]:
+                res.insert(Node(), row_it, col_it)
 
     def push(self):
         node: Node = self.stack.pop()
