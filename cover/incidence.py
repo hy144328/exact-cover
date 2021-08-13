@@ -32,11 +32,13 @@ class IncidenceMatrix(Cover, pd.DataFrame):
         return IncidenceMatrix(df)
 
     def next_col(self):
-        sorted_columns = sorted(
-            self.current_columns,
-            key=lambda x: sum(self.current.loc[:, x] == 1),
-        )
-        return sorted_columns[0]
+        try:
+            return min(
+                self.current_columns,
+                key=lambda x: sum(self.current.loc[:, x] == 1),
+            )
+        except ValueError:
+            raise StopIteration
 
     def choose_rows(self, col) -> Iterable:
         return (row_it for row_it in self.current_index if self.at[row_it, col] == 1)

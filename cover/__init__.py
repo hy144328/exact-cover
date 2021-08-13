@@ -45,7 +45,7 @@ class AlgorithmX:
 
         try:
             col = A.next_col()
-        except IndexError:
+        except StopIteration:
             solutions.append(res)
             return solutions
 

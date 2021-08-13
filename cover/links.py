@@ -136,7 +136,7 @@ class DancingLinks(Cover):
 
         node_it = node.below
         while not isinstance(node_it, ConstraintNode):
-            res.append(node.choice)
+            res.append(node_it.choice)
             node_it = node_it.below
 
         return res
@@ -147,7 +147,7 @@ class DancingLinks(Cover):
 
         node_it = node.right
         while not isinstance(node_it, ChoiceNode):
-            res.append(node.constraint)
+            res.append(node_it.constraint)
             node_it = node_it.right
 
         return res
@@ -169,16 +169,16 @@ class DancingLinks(Cover):
             node: ChoiceNode = self.stack.pop()
             self.choices[row_it] = node
 
-            while not isinstance(self.stack[-1], ChoiceNode):
-                self.insert(self.stack.pop())
+            while self.stack and not isinstance(self.stack[-1], ChoiceNode):
+                self.push(self.stack.pop())
 
     def restore_cols(self, cols: Iterable):
-        for col_it in rows:
+        for col_it in cols:
             node: ConstraintNode = self.stack.pop()
             self.constraints[col_it] = node
 
-            while not isinstance(self.stack[-1], ConstraintNode):
-                self.insert(self.stack.pop())
+            while self.stack and not isinstance(self.stack[-1], ConstraintNode):
+                self.push(self.stack.pop())
 
     def next_col(self):
         return next(iter(self.constraints))
