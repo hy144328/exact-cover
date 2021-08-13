@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import abc
-from collections.abc import Sequence
 import json
 import os
 import pytest
@@ -20,29 +19,33 @@ class Wiki:
         )
 
     @pytest.fixture
-    def data(self, file_path: str) -> dict[object, Sequence]:
+    def data(self, file_path: str) -> dict[object, list]:
         with open(file_path, 'r') as f:
             data = json.load(f)
         return data
 
+    @pytest.fixture
+    def solution(self) -> tuple:
+        return ("B", "D", "F")
+
     @abc.abstractmethod
-    def cover(self, data: dict[object, Sequence]) -> Cover:
+    def cover(self, data: dict[object, list]) -> Cover:
         ...
 
-    def test(self, cover: Cover):
+    def test(self, cover: Cover, solution: tuple):
         solutions = AlgorithmX.solve(cover)
 
         assert len(solutions) == 1
-        assert tuple(sorted(solutions[0])) == ("B", "D", "F")
+        assert tuple(sorted(solutions[0])) == solution
 
 
 class TestWikiIncidenceMatrix(Wiki):
     @pytest.fixture
-    def cover(self, data: dict[object, Sequence]) -> IncidenceMatrix:
+    def cover(self, data: dict[object, list]) -> IncidenceMatrix:
         return IncidenceMatrix.read_json(data)
 
 
 class TestWikiDancingLinks(Wiki):
     @pytest.fixture
-    def cover(self, data: dict[object, Sequence]) -> DancingLinks:
+    def cover(self, data: dict[object, list]) -> DancingLinks:
         return DancingLinks.read_json(data)
