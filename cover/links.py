@@ -6,11 +6,15 @@ from . import Cover
 
 class Node:
     def __init__(self, val: bool = False) -> "Node":
-        self.val = val
-        self.left = self
-        self.right = self
-        self.above = self
-        self.below = self
+        self.val: bool = val
+
+        self.left: Node = self
+        self.right: Node = self
+        self.above: Node = self
+        self.below: Node = self
+
+        self.choice: str = None
+        self.constraint: str = None
 
     def cut_left(self):
         self.left.right = self.right
@@ -38,8 +42,9 @@ class Node:
 
 
 class ChoiceNode(Node):
-    def __init__(self) -> "ChoiceNode":
+    def __init__(self, name: str) -> "ChoiceNode":
         super().__init__(left=self, right=self)
+        self.choice: str = name
         self.no_constraints: int = 0
 
     def cut_above(self):
@@ -56,8 +61,9 @@ class ChoiceNode(Node):
 
 
 class ConstraintNode(Node):
-    def __init__(self) -> "ConstraintNode":
+    def __init__(self, name: str) -> "ConstraintNode":
         super().__init__(above=self, below=self)
+        self.constraint: str = name
         self.no_choices: int = 0
 
     def cut_left(self):
@@ -97,3 +103,25 @@ class DancingLinks(Cover):
         node.above = above
         node.below = above.below
         self.push(node)
+
+    def choose_rows(self, col) -> Iterable:
+        node = self.constraints[col]
+        res = []
+
+        node_it = node.below
+        while not isinstance(node_it, ConstraintNode):
+            res.append(node.choice)
+            node_it = node_it.below
+
+        return res
+
+    def choose_cols(self, row) -> Iterable:
+        node = self.choices[row]
+        res = []
+
+        node_it = node.right
+        while not isinstance(node_it, ChoiceNode):
+            res.append(node.constraint)
+            node_it = node_it.right
+
+        return res
