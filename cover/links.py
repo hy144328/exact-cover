@@ -132,7 +132,7 @@ class DancingLinks(Cover):
 
         self.push(node)
 
-    def choose_rows(self, col) -> Iterable:
+    def choose_choices(self, col) -> Iterable:
         node = self.constraints[col]
         res = []
 
@@ -143,7 +143,7 @@ class DancingLinks(Cover):
 
         return res
 
-    def choose_cols(self, row) -> Iterable:
+    def choose_constraints(self, row) -> Iterable:
         node = self.choices[row]
         res = []
 
@@ -154,7 +154,7 @@ class DancingLinks(Cover):
 
         return res
 
-    def delete_rows(self, rows: Iterable):
+    def delete_choices(self, rows: Iterable):
         for row_it in rows:
             node_it: ChoiceNode = self.choices.pop(row_it)
             while node_it is not node_it.right:
@@ -162,7 +162,7 @@ class DancingLinks(Cover):
                 node_it = node_it.right
             self.pop(node_it)
 
-    def delete_cols(self, cols: Iterable):
+    def delete_constraints(self, cols: Iterable):
         for col_it in cols:
             node_it: ConstraintNode = self.constraints.pop(col_it)
             while node_it is not node_it.below:
@@ -170,14 +170,14 @@ class DancingLinks(Cover):
                 node_it = node_it.below
             self.pop(node_it)
 
-    def restore_rows(self, rows: Iterable):
+    def restore_choices(self, rows: Iterable):
         for row_it in rows:
             node_it: Node = self.push()
             while not isinstance(node_it, ChoiceNode):
                 node_it = self.push()
             self.choices[row_it] = node_it
 
-    def restore_cols(self, cols: Iterable):
+    def restore_constraints(self, cols: Iterable):
         for col_it in cols:
             node_it: Node = self.push()
             while not isinstance(node_it, ConstraintNode):

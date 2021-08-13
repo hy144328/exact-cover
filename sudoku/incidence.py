@@ -9,8 +9,8 @@ from . import Sudoku
 class IncidenceMatrix(Sudoku, cover_incidence.IncidenceMatrix):
     @classmethod
     def read_csv(cls, df: pd.DataFrame) -> "IncidenceMatrix":
-        choices = IncidenceMatrix.build_index(df)
-        constraints = IncidenceMatrix.build_columns(df)
+        choices = IncidenceMatrix.build_choices(df)
+        constraints = IncidenceMatrix.build_constraints(df)
         new_df = pd.DataFrame(
             0,
             index=choices,

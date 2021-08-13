@@ -10,27 +10,27 @@ class Cover:
         ...
 
     @abc.abstractmethod
-    def choose_rows(self, col) -> Iterable:
+    def choose_choices(self, col) -> Iterable:
         ...
 
     @abc.abstractmethod
-    def choose_cols(self, row) -> Iterable:
+    def choose_constraints(self, row) -> Iterable:
         ...
 
     @abc.abstractmethod
-    def delete_rows(self, rows: Iterable):
+    def delete_choices(self, rows: Iterable):
         ...
 
     @abc.abstractmethod
-    def delete_cols(self, cols: Iterable):
+    def delete_constraints(self, cols: Iterable):
         ...
 
     @abc.abstractmethod
-    def restore_rows(self, rows: Iterable):
+    def restore_choices(self, rows: Iterable):
         ...
 
     @abc.abstractmethod
-    def restore_cols(self, cols: Iterable):
+    def restore_constraints(self, cols: Iterable):
         ...
 
 
@@ -49,21 +49,21 @@ class AlgorithmX:
             solutions.append(res)
             return solutions
 
-        for row_it in A.choose_rows(col):
+        for row_it in A.choose_choices(col):
             res_it = res + (row_it, )
-            cols_removed = list(A.choose_cols(row_it))
+            cols_removed = list(A.choose_constraints(row_it))
 
             rows_removed = set()
             for col_it in cols_removed:
-                rows_removed |= set(A.choose_rows(col_it))
+                rows_removed |= set(A.choose_choices(col_it))
             rows_removed = list(rows_removed)
 
-            A.delete_rows(rows_removed)
-            A.delete_cols(cols_removed)
+            A.delete_choices(rows_removed)
+            A.delete_constraints(cols_removed)
 
             AlgorithmX.solve(A, solutions, res_it)
 
-            A.restore_cols(reversed(cols_removed))
-            A.restore_rows(reversed(rows_removed))
+            A.restore_constraints(reversed(cols_removed))
+            A.restore_choices(reversed(rows_removed))
 
         return solutions

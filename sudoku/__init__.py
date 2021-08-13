@@ -8,7 +8,7 @@ import pandas as pd
 
 class Sudoku:
     @classmethod
-    def build_index(cls, df: pd.DataFrame) -> Sequence:
+    def build_choices(cls, df: pd.DataFrame) -> Sequence:
         return [
             cls.index_choice(row_it, col_it, val_it)
             for row_it in range(9)
@@ -21,7 +21,7 @@ class Sudoku:
         ]
 
     @classmethod
-    def build_columns(cls, df: pd.DataFrame) -> Sequence:
+    def build_constraints(cls, df: pd.DataFrame) -> Sequence:
         res = []
 
         # Rows.
@@ -85,20 +85,20 @@ class Sudoku:
         return str(row) + str(col) + str(val)
 
     @staticmethod
-    def _index_constraint(type_id: str, idx: int, val: int) -> str:
+    def _choices_constraint(type_id: str, idx: int, val: int) -> str:
         return type_id + str(idx) + str(val)
 
     @classmethod
     def index_constraint_row(cls, idx: int, val: int) -> str:
-        return cls._index_constraint("r", idx, val)
+        return cls._choices_constraint("r", idx, val)
 
     @classmethod
     def index_constraint_column(cls, idx: int, val: int) -> str:
-        return cls._index_constraint("c", idx, val)
+        return cls._choices_constraint("c", idx, val)
 
     @classmethod
     def index_constraint_block(cls, idx: int, val: int) -> str:
-        return cls._index_constraint("b", idx, val)
+        return cls._choices_constraint("b", idx, val)
 
     @classmethod
     def index_constraint_position(cls, row: int, col: int) -> str:
