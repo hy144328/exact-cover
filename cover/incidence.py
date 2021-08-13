@@ -41,10 +41,18 @@ class IncidenceMatrix(Cover, pd.DataFrame):
             raise StopIteration
 
     def choose_choices(self, constraint) -> Sequence:
-        return [choice_it for choice_it in self.choices if self.at[choice_it, constraint]]
+        return [
+            choice_it
+            for choice_it in self.choices
+            if self.at[choice_it, constraint]
+        ]
 
     def choose_constraints(self, choice) -> Sequence:
-        return [constraint_it for constraint_it in self.constraints if self.at[choice, constraint_it]]
+        return [
+            constraint_it
+            for constraint_it in self.constraints
+            if self.at[choice, constraint_it]
+        ]
 
     def delete_choices(self, choices: Sequence):
         self.choices = [
