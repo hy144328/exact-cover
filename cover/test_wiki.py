@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 
+import abc
 from collections.abc import Sequence
 import json
 import os
 import pytest
 
 from . import AlgorithmX
-from .incidence import IncidenceMatrix
+from .incidence import IncidenceMatrix, DancingLinks
 
 
-class TestWiki:
+class Wiki:
     @pytest.fixture
     def file_path(self) -> str:
         return os.path.join(
@@ -23,12 +24,24 @@ class TestWiki:
             data = json.load(f)
         return data
 
-    @pytest.fixture
-    def cover(self, data: dict[object, Sequence]) -> IncidenceMatrix:
-        return IncidenceMatrix.read_json(data)
+    @abc.abstractmethod
+    def cover(self, data: dict[object, Sequence]) -> Cover:
+        ...
 
-    def test(self, cover: IncidenceMatrix):
+    def test(self, cover: Cover):
         solutions = AlgorithmX.solve(cover)
 
         assert len(solutions) == 1
         assert tuple(sorted(solutions[0])) == ("B", "D", "F")
+
+
+class TestWikiIncidenceMatrix(Wiki):
+    @pytest.fixture
+    def cover(self, data: dict[object, Sequence]) -> IncidenceMatrix:
+        return IncidenceMatrix.read_json(data)
+
+
+class TestWikiDancingLinks(Wiki):
+    @pytest.fixture
+    def cover(self, data: dict[object, Sequence]) -> DancingLinks:
+        return DancingLinks.read_json(data)
