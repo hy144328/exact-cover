@@ -108,6 +108,8 @@ class DancingLinks(Cover):
         node.attach_above()
         node.attach_below()
 
+        return node
+
     def pop(self, node: Node):
         node.cut_left()
         node.cut_right()
