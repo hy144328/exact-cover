@@ -6,8 +6,9 @@ import json
 import os
 import pytest
 
-from . import AlgorithmX
-from .incidence import IncidenceMatrix, DancingLinks
+from . import AlgorithmX, Cover
+from .incidence import IncidenceMatrix
+from .links import DancingLinks
 
 
 class Wiki:

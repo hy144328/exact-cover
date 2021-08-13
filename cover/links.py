@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from collections.abc import Iterable, Sequence
 
 from . import Cover
 
