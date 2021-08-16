@@ -71,9 +71,9 @@ class AlgorithmX:
         return solutions
 
 
-class ConstrainedProgramming:
+class ConstraintProgramming:
     def solve(A: Cover) -> list[tuple]:
-        prob = pulp.LpProblem("Sudoku problem")
+        prob = pulp.LpProblem()
         choices = {}
 
         while True:

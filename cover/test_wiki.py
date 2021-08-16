@@ -3,10 +3,11 @@
 import abc
 import json
 import os
+
 import pytest
 
-from . import AlgorithmX, Cover
-from . import ConstrainedProgramming
+from . import Cover
+from . import AlgorithmX, ConstraintProgramming
 from .incidence import IncidenceMatrix
 from .links import DancingLinks
 
@@ -54,7 +55,7 @@ class TestWikiDancingLinks(Wiki):
 
 class WikiLP(Wiki):
     def test(self, cover: Cover, solution: tuple):
-        solutions = ConstrainedProgramming.solve(cover)
+        solutions = ConstraintProgramming.solve(cover)
 
         assert len(solutions) == 1
         assert tuple(sorted(solutions[0])) == solution
