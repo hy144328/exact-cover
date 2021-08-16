@@ -34,34 +34,62 @@ class Wiki:
     def cover(self, data: dict[object, list]) -> Cover:
         ...
 
+    @abc.abstractmethod
+    def solve(self, cover: Cover) -> list[tuple]:
+        ...
+
     def test(self, cover: Cover, solution: tuple):
-        solutions = AlgorithmX.solve(cover)
+        solutions = self.solve(cover)
 
         assert len(solutions) == 1
         assert tuple(sorted(solutions[0])) == solution
 
 
-class TestWikiIncidenceMatrix(Wiki):
+class WikiIncidenceMatrix(Wiki):
     @pytest.fixture
     def cover(self, data: dict[object, list]) -> IncidenceMatrix:
         return IncidenceMatrix.read_json(data)
 
 
-class TestWikiDancingLinks(Wiki):
+class WikiDancingLinks(Wiki):
     @pytest.fixture
     def cover(self, data: dict[object, list]) -> DancingLinks:
         return DancingLinks.read_json(data)
 
 
-class WikiLP(Wiki):
-    def test(self, cover: Cover, solution: tuple):
-        solutions = ConstraintProgramming.solve(cover)
-
-        assert len(solutions) == 1
-        assert tuple(sorted(solutions[0])) == solution
+class WikiAlgorithmX:
+    def solve(self, cover: Cover) -> list[tuple]:
+        return AlgorithmX.solve(cover)
 
 
-class TestWikiLPIncidenceMatrix(WikiLP):
-    @pytest.fixture
-    def cover(self, data: dict[object, list]) -> IncidenceMatrix:
-        return IncidenceMatrix.read_json(data)
+class WikiConstraintProgramming:
+    def solve(self, cover: Cover) -> list[tuple]:
+        return ConstraintProgramming.solve(cover)
+
+
+class TestWikiAlgorithmXIncidenceMatrix(
+    WikiAlgorithmX,
+    WikiIncidenceMatrix,
+):
+    ...
+
+
+class TestWikiAlgorithmXDancingLinks(
+    WikiAlgorithmX,
+    WikiDancingLinks,
+):
+    ...
+
+
+class TestWikiConstraintProgrammingIncidenceMatrix(
+    WikiConstraintProgramming,
+    WikiIncidenceMatrix,
+):
+    ...
+
+
+class TestWikiConstraintProgrammingDancingLinks(
+    WikiConstraintProgramming,
+    WikiDancingLinks,
+):
+    ...
