@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 
+import abc
 import os
 import pandas as pd
+
 import pytest
 
-from cover import AlgorithmX
+from cover import Cover
+from cover import test_wiki as cover_test_wiki
+
+from . import Sudoku
 from .incidence import IncidenceMatrix
 from .links import DancingLinks
 
@@ -23,12 +28,16 @@ class Wiki:
             df = pd.read_csv(f, header=None)
         return df
 
-    @pytest.fixture
-    def cover(self, df: pd.DataFrame) -> IncidenceMatrix:
-        return IncidenceMatrix.read_csv(df)
+    @abc.abstractmethod
+    def cover(self, df: pd.DataFrame) -> Cover:
+        ...
 
-    def test(self, df: pd.DataFrame, cover: IncidenceMatrix):
-        solutions = AlgorithmX.solve(cover)
+    @abc.abstractmethod
+    def solve(self, cover: Cover) -> list[tuple]:
+        ...
+
+    def test(self, df: pd.DataFrame, cover: Cover):
+        solutions = self.solve(cover)
         for sol_it in solutions:
             new_df = pd.DataFrame(df)
             for choice_it in sol_it:
@@ -38,31 +47,59 @@ class Wiki:
         # Rows.
         for row_it in range(9):
             for val_it in range(1, 10):
-                assert IncidenceMatrix.check_row(df, row_it, val_it, 1)
+                assert Sudoku.check_row(df, row_it, val_it, 1)
 
         # Columns.
         for col_it in range(9):
             for val_it in range(1, 10):
-                assert IncidenceMatrix.check_column(df, col_it, val_it, 1)
+                assert Sudoku.check_column(df, col_it, val_it, 1)
 
         # Blocks.
         for block_it in range(9):
             for val_it in range(1, 10):
-                assert IncidenceMatrix.check_block(df, block_it, val_it, 1)
+                assert Sudoku.check_block(df, block_it, val_it, 1)
 
         # Positions.
         for row_it in range(9):
             for col_it in range(9):
-                assert IncidenceMatrix.check_position(df, row_it, col_it, 1)
+                assert Sudoku.check_position(df, row_it, col_it, 1)
 
 
-class TestWikiIncidenceMatrix(Wiki):
+class WikiIncidenceMatrix(Wiki):
     @pytest.fixture
     def cover(self, df: pd.DataFrame) -> IncidenceMatrix:
         return IncidenceMatrix.read_csv(df)
 
 
-class TestWikiDancingLinks(Wiki):
+class WikiDancingLinks(Wiki):
     @pytest.fixture
     def cover(self, df: pd.DataFrame) -> DancingLinks:
         return DancingLinks.read_csv(df)
+
+
+class TestWikiAlgorithmXIncidenceMatrix(
+    cover_test_wiki.WikiAlgorithmX,
+    WikiIncidenceMatrix,
+):
+    ...
+
+
+class TestWikiAlgorithmXDancingLinks(
+    cover_test_wiki.WikiAlgorithmX,
+    WikiDancingLinks,
+):
+    ...
+
+
+class TestWikiConstraintProgrammingIncidenceMatrix(
+    cover_test_wiki.WikiConstraintProgramming,
+    WikiIncidenceMatrix,
+):
+    ...
+
+
+class TestWikiConstraintProgrammingDancingLinks(
+    cover_test_wiki.WikiConstraintProgramming,
+    WikiDancingLinks,
+):
+    ...

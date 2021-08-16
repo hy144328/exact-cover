@@ -3,6 +3,7 @@
 import pytest
 
 from cover import test_wiki as cover_test_wiki
+
 from .incidence import IncidenceMatrix
 from .links import DancingLinks
 
