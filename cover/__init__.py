@@ -85,7 +85,7 @@ class ConstraintProgramming:
             candidate_choices = A.choose_choices(constraint)
             for choice_it in candidate_choices:
                 if choice_it not in choices:
-                    choices[choice_it] = pulp.LpVariable(choice_it, 0, 1, pulp.LpInteger)
+                    choices[choice_it] = pulp.LpVariable(str(choice_it), 0, 1, pulp.LpInteger)
 
             prob += (pulp.lpSum([choices[choice_it] for choice_it in candidate_choices]) == 1)
             A.delete_constraints([constraint])
