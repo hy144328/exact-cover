@@ -3,6 +3,8 @@
 import abc
 from collections.abc import Sequence
 
+import pulp
+
 
 class Cover:
     @abc.abstractmethod
@@ -67,3 +69,26 @@ class AlgorithmX:
             A.restore_choices(list(reversed(choices_removed)))
 
         return solutions
+
+
+class ConstrainedProgramming:
+    def solve(A: Cover) -> list[tuple]:
+        prob = pulp.LpProblem("Sudoku problem")
+        choices = {}
+
+        while True:
+            try:
+                constraint = A.next_constraint()
+            except StopIteration:
+                break
+
+            candidate_choices = A.choose_choices(constraint)
+            for choice_it in candidate_choices:
+                if choice_it not in choices:
+                    choices[choice_it] = pulp.LpVariable(choice_it, 0, 1, pulp.LpInteger)
+
+            prob += (pulp.lpSum([choices[choice_it] for choice_it in candidate_choices]) == 1)
+            A.delete_constraints([constraint])
+
+        prob.solve()
+        return [tuple(v.name for v in prob.variables() if v.varValue == 1)]

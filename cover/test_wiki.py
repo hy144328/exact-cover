@@ -6,6 +6,7 @@ import os
 import pytest
 
 from . import AlgorithmX, Cover
+from . import ConstrainedProgramming
 from .incidence import IncidenceMatrix
 from .links import DancingLinks
 
@@ -49,3 +50,17 @@ class TestWikiDancingLinks(Wiki):
     @pytest.fixture
     def cover(self, data: dict[object, list]) -> DancingLinks:
         return DancingLinks.read_json(data)
+
+
+class WikiLP(Wiki):
+    def test(self, cover: Cover, solution: tuple):
+        solutions = ConstrainedProgramming.solve(cover)
+
+        assert len(solutions) == 1
+        assert tuple(sorted(solutions[0])) == solution
+
+
+class TestWikiLPIncidenceMatrix(WikiLP):
+    @pytest.fixture
+    def cover(self, data: dict[object, list]) -> IncidenceMatrix:
+        return IncidenceMatrix.read_json(data)
