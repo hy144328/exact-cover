@@ -1,4 +1,4 @@
-*.iypnb filter=jupyternotebook
+*.ipynb filter=jupyternotebook
 
 *.ipynb	diff=jupyternotebook
 
