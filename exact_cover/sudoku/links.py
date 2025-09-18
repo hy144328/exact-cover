@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from cover import links as cover_links
+from exact_cover.cover import links as cover_links
 from . import Sudoku
 
 

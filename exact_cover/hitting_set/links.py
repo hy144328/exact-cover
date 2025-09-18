@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from cover import links as cover_links
+from exact_cover.cover import links as cover_links
 
 
 class DancingLinks(cover_links.DancingLinks):

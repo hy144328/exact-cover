@@ -72,6 +72,7 @@ class AlgorithmX:
 
 
 class ConstraintProgramming:
+    @staticmethod
     def solve(A: Cover) -> list[tuple]:
         prob = pulp.LpProblem()
         choices = {}

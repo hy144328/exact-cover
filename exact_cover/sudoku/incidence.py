@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from cover import incidence as cover_incidence
+from exact_cover.cover import incidence as cover_incidence
 from . import Sudoku
 
 

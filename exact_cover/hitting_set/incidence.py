@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from cover import incidence as cover_incidence
+from exact_cover.cover import incidence as cover_incidence
 
 
 class IncidenceMatrix(cover_incidence.IncidenceMatrix):

@@ -1,36 +1,29 @@
-#!/usr/bin/env python3
-
 import pytest
 
-from cover import test_wiki as cover_test_wiki
+import exact_cover.hitting_set.incidence
+import exact_cover.hitting_set.links
 
-from .incidence import IncidenceMatrix
-from .links import DancingLinks
+import tests.test_cover
 
-
-class WikiIncidenceMatrix(cover_test_wiki.Wiki):
+class WikiIncidenceMatrix(tests.test_cover.Wiki):
     @pytest.fixture
-    def cover(self, data: dict[object, list]) -> IncidenceMatrix:
-        return IncidenceMatrix.read_json(data)
+    def cover(self, data: dict[object, list]) -> exact_cover.hitting_set.incidence.IncidenceMatrix:
+        return exact_cover.hitting_set.incidence.IncidenceMatrix.read_json(data)
 
-
-class WikiDancingLinks(cover_test_wiki.Wiki):
+class WikiDancingLinks(tests.test_cover.Wiki):
     @pytest.fixture
-    def cover(self, data: dict[object, list]) -> DancingLinks:
-        return DancingLinks.read_json(data)
+    def cover(self, data: dict[object, list]) -> exact_cover.hitting_set.links.DancingLinks:
+        return exact_cover.hitting_set.links.DancingLinks.read_json(data)
 
-
-class WikiAlgorithmX(cover_test_wiki.WikiAlgorithmX):
+class WikiAlgorithmX(tests.test_cover.WikiAlgorithmX):
     @pytest.fixture
     def solution(self) -> tuple:
         return (1, 2, 5)
 
-
-class WikiConstraintProgramming(cover_test_wiki.WikiConstraintProgramming):
+class WikiConstraintProgramming(tests.test_cover.WikiConstraintProgramming):
     @pytest.fixture
     def solution(self) -> tuple:
         return ("1", "2", "5")
-
 
 class TestWikiAlgorithmXIncidenceMatrix(
     WikiAlgorithmX,
@@ -38,20 +31,17 @@ class TestWikiAlgorithmXIncidenceMatrix(
 ):
     ...
 
-
 class TestWikiAlgorithmXDancingLinks(
     WikiAlgorithmX,
     WikiDancingLinks,
 ):
     ...
 
-
 class TestWikiConstraintProgrammingIncidenceMatrix(
     WikiConstraintProgramming,
     WikiIncidenceMatrix,
 ):
     ...
-
 
 class TestWikiConstraintProgrammingDancingLinks(
     WikiConstraintProgramming,

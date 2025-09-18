@@ -1,18 +1,15 @@
-#!/usr/bin/env python3
-
 import abc
 import os
 import pandas as pd
 
 import pytest
 
-from cover import Cover
-from cover import test_wiki as cover_test_wiki
+from exact_cover.cover import Cover
+from tests import test_cover as cover_test_wiki
 
-from . import Sudoku
-from .incidence import IncidenceMatrix
-from .links import DancingLinks
-
+from exact_cover.sudoku import Sudoku
+from exact_cover.sudoku.incidence import IncidenceMatrix
+from exact_cover.sudoku.links import DancingLinks
 
 class Wiki:
     @pytest.fixture
@@ -64,18 +61,15 @@ class Wiki:
             for col_it in range(9):
                 assert Sudoku.check_position(df, row_it, col_it, 1)
 
-
 class WikiIncidenceMatrix(Wiki):
     @pytest.fixture
     def cover(self, df: pd.DataFrame) -> IncidenceMatrix:
         return IncidenceMatrix.read_csv(df)
 
-
 class WikiDancingLinks(Wiki):
     @pytest.fixture
     def cover(self, df: pd.DataFrame) -> DancingLinks:
         return DancingLinks.read_csv(df)
-
 
 class TestWikiAlgorithmXIncidenceMatrix(
     cover_test_wiki.WikiAlgorithmX,
@@ -83,20 +77,17 @@ class TestWikiAlgorithmXIncidenceMatrix(
 ):
     ...
 
-
 class TestWikiAlgorithmXDancingLinks(
     cover_test_wiki.WikiAlgorithmX,
     WikiDancingLinks,
 ):
     ...
 
-
 class TestWikiConstraintProgrammingIncidenceMatrix(
     cover_test_wiki.WikiConstraintProgramming,
     WikiIncidenceMatrix,
 ):
     ...
-
 
 class TestWikiConstraintProgrammingDancingLinks(
     cover_test_wiki.WikiConstraintProgramming,
