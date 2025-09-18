@@ -1,5 +1,4 @@
 import abc
-import collections.abc
 
 class Cover[ChoiceT, ConstraintT]:
     @property
@@ -7,8 +6,9 @@ class Cover[ChoiceT, ConstraintT]:
     def choices(self) -> list[ChoiceT]:
         raise NotImplementedError()
 
+    @property
     @abc.abstractmethod
-    def iter_constraints(self) -> collections.abc.Generator[ConstraintT]:
+    def constraints(self) -> list[ConstraintT]:
         raise NotImplementedError()
 
     @abc.abstractmethod
