@@ -1,1 +1,3 @@
-# exact-cover
+# Exact cover
+
+Exact cover for Sudoku.
