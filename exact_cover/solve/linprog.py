@@ -16,14 +16,17 @@ class ConstraintProgramming(Solver):
             choice_it: pulp.LpVariable(str(choice_it), 0, 1, pulp.LpInteger)
             for choice_it in cov.choices
         }
+        constraints = {
+            constraint_it: []
+            for constraint_it in cov.constraints
+        }
 
-        for constraint_it in cov.constraints:
-            prob += pulp.lpSum(
-                vector = [
-                    choices[choice_it]
-                    for choice_it in cov.get_choices(constraint_it)
-                ],
-            ) == 1
+        for choice_it in cov.choices:
+            for constraint_it in cov.get_constraints(choice_it):
+                constraints[constraint_it].append(choices[choice_it])
+
+        for constraint_it in constraints.values():
+            prob += (pulp.lpSum(constraint_it) == 1)
 
         prob.solve()
         yield {
