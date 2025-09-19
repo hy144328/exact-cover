@@ -10,7 +10,7 @@ import exact_cover.solve
 class Wiki:
     @pytest.fixture
     @abc.abstractmethod
-    def cover(self) -> exact_cover.cover.Cover:
+    def cover(self) -> exact_cover.cover.Cover[str, int]:
         raise NotImplementedError()
 
     @pytest.fixture
@@ -20,7 +20,7 @@ class Wiki:
 
     def test(
         self,
-        cover: exact_cover.cover.Cover,
+        cover: exact_cover.cover.Cover[str, int],
         solver: exact_cover.solve.Solver,
     ):
         solutions = list(solver.solve(cover))
@@ -30,19 +30,29 @@ class Wiki:
 
 class WikiIncidenceMatrix(Wiki):
     @pytest.fixture
-    def cover(self) -> exact_cover.cover.IncidenceMatrix:
+    def cover(self) -> exact_cover.cover.IncidenceMatrix[str, int]:
         with open("tests/wiki.json") as f:
             data: dict[str, list[int]] = json.load(f)
             choices = sorted(data.keys())
             constraints = sorted(functools.reduce(lambda l, r: l | set(r), data.values(), set()))
 
-        return exact_cover.cover.IncidenceMatrix(sorted(choices), sorted(constraints), data)
+        return exact_cover.cover.IncidenceMatrix(choices, constraints, data)
 
-#class WikiDancingLinks(Wiki):
-#    @pytest.fixture
-#    def cover(self) -> exact_cover.cover.links.DancingLinks:
-#        return exact_cover.cover.links.DancingLinks.read_json(data)
-#
+class WikiDancingLinks(Wiki):
+    @pytest.fixture
+    def cover(self) -> exact_cover.cover.DancingLinks[str, int]:
+        with open("tests/wiki.json") as f:
+            data: dict[str, list[int]] = json.load(f)
+            choices = sorted(data.keys())
+            constraints = sorted(functools.reduce(lambda l, r: l | set(r), data.values(), set()))
+
+        cov = exact_cover.cover.DancingLinks(choices, constraints)
+        for choice_it in data:
+            for constraint_it in data[choice_it]:
+                cov.create_node(choice_it, constraint_it)
+
+        return cov
+
 #class WikiAlgorithmX:
 #    def solve(self, cover: exact_cover.cover.Cover) -> list[tuple]:
 #        return exact_cover.cover.AlgorithmX.solve(cover)
@@ -70,8 +80,8 @@ class TestWikiConstraintProgrammingIncidenceMatrix(
 ):
     ...
 
-#class TestWikiConstraintProgrammingDancingLinks(
-#    WikiConstraintProgramming,
-#    WikiDancingLinks,
-#):
-#    ...
+class TestWikiConstraintProgrammingDancingLinks(
+    WikiConstraintProgramming,
+    WikiDancingLinks,
+):
+    ...
