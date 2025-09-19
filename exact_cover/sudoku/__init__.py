@@ -6,7 +6,7 @@ import exact_cover.cover
 import exact_cover.solve
 
 class Sudoku:
-    ROW_SEP = "\n" + 20 * "-" + "\n"
+    ROW_SEP = "\n" + 19 * "-" + "\n"
     COL_SEP = "|"
 
     def __init__(self):
@@ -36,7 +36,7 @@ class Sudoku:
             for row_it in self.data
         ]
 
-        return 20 * "-" + "\n" + Sudoku.ROW_SEP.join(rows) + "\n" + 20 * "-"
+        return 19 * "-" + "\n" + Sudoku.ROW_SEP.join(rows) + "\n" + 19 * "-"
 
     def __copy__(self) -> "Sudoku":
         res = Sudoku()
