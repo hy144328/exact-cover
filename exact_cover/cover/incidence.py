@@ -1,9 +1,9 @@
 import collections.abc
 
-import exact_cover.cover.base
+from .base import Cover
 
 class IncidenceMatrix[ChoiceT, ConstraintT](
-    exact_cover.cover.base.Cover[ChoiceT, ConstraintT],
+    Cover[ChoiceT, ConstraintT],
 ):
     def __init__(
         self,

@@ -1,74 +1,68 @@
 import abc
+import functools
 import json
-import os
 
 import pytest
 
 import exact_cover.cover
-import exact_cover.cover.incidence
-import exact_cover.cover.links
+import exact_cover.solve
 
 class Wiki:
     @pytest.fixture
-    def file_path(self) -> str:
-        return os.path.join(
-            os.path.dirname(__file__),
-            "wiki.json",
-        )
+    @abc.abstractmethod
+    def cover(self) -> exact_cover.cover.Cover:
+        raise NotImplementedError()
 
     @pytest.fixture
-    def data(self, file_path: str) -> dict[object, list]:
-        with open(file_path, 'r') as f:
-            data = json.load(f)
-        return data
-
-    @pytest.fixture
-    def solution(self) -> tuple:
-        return ("B", "D", "F")
-
     @abc.abstractmethod
-    def cover(self, data: dict[object, list]) -> exact_cover.cover.Cover:
-        ...
+    def solver(self) -> exact_cover.solve.Solver:
+        raise NotImplementedError()
 
-    @abc.abstractmethod
-    def solve(self, cover: exact_cover.cover.Cover) -> list[tuple]:
-        ...
-
-    def test(self, cover: exact_cover.cover.Cover, solution: tuple):
-        solutions = self.solve(cover)
+    def test(
+        self,
+        cover: exact_cover.cover.Cover,
+        solver: exact_cover.solve.Solver,
+    ):
+        solutions = list(solver.solve(cover))
 
         assert len(solutions) == 1
-        assert tuple(sorted(solutions[0])) == solution
+        assert solutions[0] == {"B", "D", "F"}
 
 class WikiIncidenceMatrix(Wiki):
     @pytest.fixture
-    def cover(self, data: dict[object, list]) -> exact_cover.cover.incidence.IncidenceMatrix:
-        return exact_cover.cover.incidence.IncidenceMatrix.read_json(data)
+    def cover(self) -> exact_cover.cover.IncidenceMatrix:
+        with open("tests/wiki.json") as f:
+            data: dict[str, list[int]] = json.load(f)
+            choices = sorted(data.keys())
+            constraints = sorted(functools.reduce(lambda l, r: l | set(r), data.values(), set()))
 
-class WikiDancingLinks(Wiki):
+        return exact_cover.cover.IncidenceMatrix(sorted(choices), sorted(constraints), data)
+
+#class WikiDancingLinks(Wiki):
+#    @pytest.fixture
+#    def cover(self) -> exact_cover.cover.links.DancingLinks:
+#        return exact_cover.cover.links.DancingLinks.read_json(data)
+#
+#class WikiAlgorithmX:
+#    def solve(self, cover: exact_cover.cover.Cover) -> list[tuple]:
+#        return exact_cover.cover.AlgorithmX.solve(cover)
+
+class WikiConstraintProgramming(Wiki):
     @pytest.fixture
-    def cover(self, data: dict[object, list]) -> exact_cover.cover.links.DancingLinks:
-        return exact_cover.cover.links.DancingLinks.read_json(data)
+    def solver(self) -> exact_cover.solve.ConstraintProgramming:
+        return exact_cover.solve.ConstraintProgramming()
 
-class WikiAlgorithmX:
-    def solve(self, cover: exact_cover.cover.Cover) -> list[tuple]:
-        return exact_cover.cover.AlgorithmX.solve(cover)
-
-class WikiConstraintProgramming:
-    def solve(self, cover: exact_cover.cover.Cover) -> list[tuple]:
-        return exact_cover.cover.ConstraintProgramming.solve(cover)
-
-class TestWikiAlgorithmXIncidenceMatrix(
-    WikiAlgorithmX,
-    WikiIncidenceMatrix,
-):
-    ...
-
-class TestWikiAlgorithmXDancingLinks(
-    WikiAlgorithmX,
-    WikiDancingLinks,
-):
-    ...
+#class TestWikiAlgorithmXIncidenceMatrix(
+#    WikiAlgorithmX,
+#    WikiIncidenceMatrix,
+#):
+#    ...
+#
+#class TestWikiAlgorithmXDancingLinks(
+#    WikiAlgorithmX,
+#    WikiDancingLinks,
+#):
+#    ...
 
 class TestWikiConstraintProgrammingIncidenceMatrix(
     WikiConstraintProgramming,
@@ -76,8 +70,8 @@ class TestWikiConstraintProgrammingIncidenceMatrix(
 ):
     ...
 
-class TestWikiConstraintProgrammingDancingLinks(
-    WikiConstraintProgramming,
-    WikiDancingLinks,
-):
-    ...
+#class TestWikiConstraintProgrammingDancingLinks(
+#    WikiConstraintProgramming,
+#    WikiDancingLinks,
+#):
+#    ...

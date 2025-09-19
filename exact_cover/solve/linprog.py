@@ -3,9 +3,10 @@ import collections.abc
 import pulp
 
 import exact_cover.cover
-import exact_cover.solve.base
 
-class ConstraintProgramming(exact_cover.solve.base.Solver):
+from .base import Solver
+
+class ConstraintProgramming(Solver):
     def solve[ChoiceT, ConstraintT](
         self,
         cov: exact_cover.cover.Cover[ChoiceT, ConstraintT],
@@ -16,7 +17,7 @@ class ConstraintProgramming(exact_cover.solve.base.Solver):
             for choice_it in cov.choices
         }
 
-        for constraint_it in cov.iter_constraints():
+        for constraint_it in cov.constraints:
             prob += pulp.lpSum(
                 vector = [
                     choices[choice_it]
