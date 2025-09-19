@@ -29,4 +29,6 @@ dev = [
 optional = true
 
 [tool.poetry.group.cv.dependencies]
+nbconvert = ">=7.16.6,<8.0.0"
+nbdime = ">=4.0.2,<5.0.0"
 notebook = ">=7.4.5,<8.0.0"
