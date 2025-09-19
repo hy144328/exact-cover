@@ -53,26 +53,15 @@ class WikiDancingLinks(Wiki):
 
         return cov
 
-#class WikiAlgorithmX:
-#    def solve(self, cover: exact_cover.cover.Cover) -> list[tuple]:
-#        return exact_cover.cover.AlgorithmX.solve(cover)
-
 class WikiConstraintProgramming(Wiki):
     @pytest.fixture
     def solver(self) -> exact_cover.solve.ConstraintProgramming:
         return exact_cover.solve.ConstraintProgramming()
 
-#class TestWikiAlgorithmXIncidenceMatrix(
-#    WikiAlgorithmX,
-#    WikiIncidenceMatrix,
-#):
-#    ...
-#
-#class TestWikiAlgorithmXDancingLinks(
-#    WikiAlgorithmX,
-#    WikiDancingLinks,
-#):
-#    ...
+class WikiAlgorithmX(Wiki):
+    @pytest.fixture
+    def solver(self) -> exact_cover.solve.AlgorithmX:
+        return exact_cover.solve.AlgorithmX()
 
 class TestWikiConstraintProgrammingIncidenceMatrix(
     WikiConstraintProgramming,
@@ -82,6 +71,12 @@ class TestWikiConstraintProgrammingIncidenceMatrix(
 
 class TestWikiConstraintProgrammingDancingLinks(
     WikiConstraintProgramming,
+    WikiDancingLinks,
+):
+    ...
+
+class TestWikiAlgorithmXDancingLinks(
+    WikiAlgorithmX,
     WikiDancingLinks,
 ):
     ...

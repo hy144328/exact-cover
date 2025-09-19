@@ -1,2 +1,2 @@
-from exact_cover.cover import Cover, DancingLinks, IncidenceMatrix
-from exact_cover.solve import ConstraintProgramming, Solver
+from exact_cover.cover import Cover, DancingLinks, IncidenceMatrix, MutableCover
+from exact_cover.solve import AlgorithmX, ConstraintProgramming, Solver

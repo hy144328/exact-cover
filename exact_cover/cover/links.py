@@ -169,3 +169,6 @@ class DancingLinks[ChoiceT, ConstraintT](MutableCover[ChoiceT, ConstraintT]):
             raise ValueError(f"Expected {constraint} but got {node_it.constraint}.")
 
         self.columns[constraint] = node_it
+
+    def next_constraint(self) -> ConstraintT:
+        return next(iter(self.columns))

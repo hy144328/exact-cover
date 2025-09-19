@@ -35,3 +35,7 @@ class MutableCover[ChoiceT, ConstraintT](Cover[ChoiceT, ConstraintT]):
     @abc.abstractmethod
     def restore_constraint(self, constraint: ConstraintT):
         raise NotImplementedError()
+
+    @abc.abstractmethod
+    def next_constraint(self) -> ConstraintT:
+        raise NotImplementedError()
