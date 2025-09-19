@@ -8,7 +8,7 @@ import exact_cover.solve
 from . import types, util
 
 class Sudoku:
-    ROW_SEP = "\n" + 19 * "-" + "\n"
+    ROW_SEP = "\n" + "---".join("++++") + "\n"
     COL_SEP = "|"
 
     def __init__(self):
@@ -26,19 +26,29 @@ class Sudoku:
         self.data[i][j] = val
 
     def __str__(self) -> str:
-        rows = [
-            "|" + Sudoku.COL_SEP.join(
-                [
-                    str(col_it)
-                    if col_it is not None
-                    else " "
-                    for col_it in row_it
-                ],
-            ) + "|"
-            for row_it in self.data
-        ]
-
-        return 19 * "-" + "\n" + Sudoku.ROW_SEP.join(rows) + "\n" + 19 * "-"
+        return Sudoku.ROW_SEP + Sudoku.ROW_SEP.join(
+            [
+                "\n".join(
+                    [
+                        Sudoku.COL_SEP + Sudoku.COL_SEP.join(
+                            [
+                                "".join(
+                                    [
+                                        str(col_it)
+                                        if col_it is not None
+                                        else " "
+                                        for col_it in col_group_it
+                                    ]
+                                )
+                                for col_group_it in itertools.batched(row_it, 3)
+                            ]
+                        ) + Sudoku.COL_SEP
+                        for row_it in row_group_it
+                    ]
+                )
+                for row_group_it in itertools.batched(self.data, 3)
+            ]
+        ) + Sudoku.ROW_SEP
 
     def __copy__(self) -> "Sudoku":
         res = Sudoku()
