@@ -39,3 +39,19 @@ class MutableCover[ChoiceT, ConstraintT](Cover[ChoiceT, ConstraintT]):
     @abc.abstractmethod
     def next_constraint(self) -> ConstraintT:
         raise NotImplementedError()
+
+    def choose(self, choice: ChoiceT):
+        constraints_satisfied = self.get_constraints(choice)
+
+        choices_invalidated = [
+            choice_it
+            for constraint_it in constraints_satisfied
+            for choice_it in self.get_choices(constraint_it)
+        ]
+        choices_invalidated = list(set(choices_invalidated))
+
+        for choice_it in choices_invalidated:
+            self.drop_choice(choice_it)
+
+        for constraint_it in constraints_satisfied:
+            self.drop_constraint(constraint_it)

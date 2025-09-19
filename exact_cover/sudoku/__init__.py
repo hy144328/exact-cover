@@ -1,105 +1,105 @@
-#!/usr/bin/env python3
+import collections.abc
+import copy
+import itertools
 
-from collections.abc import Sequence
-
-import numpy as np
-import pandas as pd
-
+import exact_cover.cover
+import exact_cover.solve
 
 class Sudoku:
-    @classmethod
-    def build_choices(cls, df: pd.DataFrame) -> Sequence:
-        return [
-            cls.index_choice(row_it, col_it, val_it)
-            for row_it in range(9)
-            for col_it in range(9)
-            for val_it in range(1, 10)
-            if cls.check_position(df, row_it, col_it)
-            and cls.check_row(df, row_it, val_it)
-            and cls.check_column(df, col_it, val_it)
-            and cls.check_block(df, cls.index_block(row_it, col_it), val_it)
+    ROW_SEP = "\n" + 20 * "-" + "\n"
+    COL_SEP = "|"
+
+    def __init__(self):
+        self.data: list[list[int | None]] = [
+            [None for _ in range(9)]
+            for _ in range(9)
         ]
 
-    @classmethod
-    def build_constraints(cls, df: pd.DataFrame) -> Sequence:
-        res = []
+    def __getitem__(self, ij: tuple[int, int]) -> int | None:
+        i, j = ij
+        return self.data[i][j]
 
-        # Rows.
-        res += [
-            cls.index_constraint_row(constraint_idx, constraint_val)
-            for constraint_idx in range(9)
-            for constraint_val in range(1, 10)
-            if cls.check_row(df, constraint_idx, constraint_val)
+    def __setitem__(self, ij: tuple[int, int], val: int | None):
+        i, j = ij
+        self.data[i][j] = val
+
+    def __str__(self) -> str:
+        rows = [
+            "|" + Sudoku.COL_SEP.join(
+                [
+                    str(col_it)
+                    if col_it is not None
+                    else " "
+                    for col_it in row_it
+                ],
+            ) + "|"
+            for row_it in self.data
         ]
 
-        # Columns.
-        res += [
-            cls.index_constraint_column(constraint_idx, constraint_val)
-            for constraint_idx in range(9)
-            for constraint_val in range(1, 10)
-            if cls.check_column(df, constraint_idx, constraint_val)
-        ]
+        return 20 * "-" + "\n" + Sudoku.ROW_SEP.join(rows) + "\n" + 20 * "-"
 
-        # Blocks.
-        res += [
-            cls.index_constraint_block(constraint_idx, constraint_val)
-            for constraint_idx in range(9)
-            for constraint_val in range(1, 10)
-            if cls.check_block(df, constraint_idx, constraint_val)
-        ]
+    def __copy__(self) -> "Sudoku":
+        res = Sudoku()
 
-        # Positions.
-        res += [
-            cls.index_constraint_position(row_it, col_it)
-            for row_it in range(9)
-            for col_it in range(9)
-            if cls.check_position(df, row_it, col_it)
-        ]
+        for row_it in range(9):
+            for col_it in range(9):
+                val_it = self[row_it, col_it]
+                if val_it is None:
+                    continue
+
+                res[row_it, col_it] = val_it
 
         return res
 
-    @staticmethod
-    def check_row(df: pd.DataFrame, row: int, val, no_occurrences=0) -> bool:
-        return np.count_nonzero(df.iloc[row, :] == str(val)) == no_occurrences
+    def build_cover(self) -> exact_cover.cover.DancingLinks[tuple[int, int, int], tuple[str, int, int]]:
+        choices = list(itertools.product(range(9), range(9), range(1, 10)))
+        constraints = [
+            ("R", row_it, val_it)
+            for row_it in range(9)
+            for val_it in range(1, 10)
+        ] + [
+            ("C", col_it, val_it)
+            for col_it in range(9)
+            for val_it in range(1, 10)
+        ] + [
+            ("B", block_it, val_it)
+            for block_it in range(9)
+            for val_it in range(1, 10)
+        ] + [
+            ("P", row_it, col_it)
+            for row_it in range(9)
+            for col_it in range(9)
+        ]
+        res = exact_cover.cover.DancingLinks(choices, constraints)
 
-    @staticmethod
-    def check_column(df: pd.DataFrame, col: int, val, no_occurrences=0) -> bool:
-        return np.count_nonzero(df.iloc[:, col] == str(val)) == no_occurrences
+        for row_it in range(9):
+            for col_it in range(9):
+                for val_it in range(1, 10):
+                    choice_it = (row_it, col_it, val_it)
 
-    @staticmethod
-    def check_block(df: pd.DataFrame, block: int, val, no_occurrences=0) -> bool:
-        row = 3 * (block // 3)
-        col = 3 * (block % 3)
-        return np.count_nonzero(df.iloc[row:row + 3, col:col + 3] == str(val)) == no_occurrences
+                    res.create_node(choice_it, ("R", row_it, val_it))
+                    res.create_node(choice_it, ("C", col_it, val_it))
+                    res.create_node(choice_it, ("B", 3 * (row_it // 3) + (col_it // 3), val_it))
+                    res.create_node(choice_it, ("P", row_it, col_it))
 
-    @staticmethod
-    def check_position(df: pd.DataFrame, row: int, col: int, no_occurrences=0) -> bool:
-        return len(df.at[row, col].strip()) == no_occurrences
+        for row_it in range(9):
+            for col_it in range(9):
+                val_it = self[row_it, col_it]
+                if val_it is None:
+                    continue
 
-    @staticmethod
-    def index_block(row: int, col: int) -> int:
-        return 3 * (row // 3) + (col // 3)
+                choice_it = (row_it, col_it, val_it)
+                res.choose(choice_it)
 
-    @staticmethod
-    def index_choice(row: int, col: int, val: int) -> str:
-        return str(row) + str(col) + str(val)
+        return res
 
-    @staticmethod
-    def _choices_constraint(type_id: str, idx: int, val: int) -> str:
-        return type_id + str(idx) + str(val)
+    def solve(self, solver: exact_cover.solve.Solver) -> collections.abc.Generator["Sudoku"]:
+        cov = self.build_cover()
 
-    @classmethod
-    def index_constraint_row(cls, idx: int, val: int) -> str:
-        return cls._choices_constraint("r", idx, val)
+        for sol_it in solver.solve(cov):
+            res_it = copy.copy(self)
 
-    @classmethod
-    def index_constraint_column(cls, idx: int, val: int) -> str:
-        return cls._choices_constraint("c", idx, val)
+            for row_it, col_it, val_it in sol_it:
+                res_it[row_it, col_it] = val_it
 
-    @classmethod
-    def index_constraint_block(cls, idx: int, val: int) -> str:
-        return cls._choices_constraint("b", idx, val)
-
-    @classmethod
-    def index_constraint_position(cls, row: int, col: int) -> str:
-        return "p" + str(row) + str(col)
+            yield res_it
