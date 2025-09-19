@@ -1,96 +1,78 @@
-import abc
-import os
-import pandas as pd
-
 import pytest
 
-from exact_cover.cover import Cover
-from tests import test_cover as cover_test_wiki
+import exact_cover.solve
+import exact_cover.sudoku
 
-from exact_cover.sudoku import Sudoku
-from exact_cover.sudoku.incidence import IncidenceMatrix
-from exact_cover.sudoku.links import DancingLinks
-
-class Wiki:
+class TestWiki:
     @pytest.fixture
-    def file_path(self):
-        return os.path.join(
-            os.path.dirname(__file__),
-            "wiki.csv",
-        )
+    def sudoku(self) -> exact_cover.sudoku.Sudoku:
+        res = exact_cover.sudoku.Sudoku()
 
-    @pytest.fixture
-    def df(self, file_path: str) -> pd.DataFrame:
-        with open(file_path, 'r') as f:
-            df = pd.read_csv(f, header=None)
-        return df
+        with open("tests/wiki.csv") as f:
+            data = [
+                line_it.split(",")
+                for line_it in f
+            ]
 
-    @abc.abstractmethod
-    def cover(self, df: pd.DataFrame) -> Cover:
-        ...
-
-    @abc.abstractmethod
-    def solve(self, cover: Cover) -> list[tuple]:
-        ...
-
-    def test(self, df: pd.DataFrame, cover: Cover):
-        solutions = self.solve(cover)
-        for sol_it in solutions:
-            new_df = pd.DataFrame(df)
-            for choice_it in sol_it:
-                new_df.iloc[int(choice_it[0]), int(choice_it[1])] = choice_it[2]
-            print(new_df)
-
-        # Rows.
-        for row_it in range(9):
-            for val_it in range(1, 10):
-                assert Sudoku.check_row(df, row_it, val_it, 1)
-
-        # Columns.
-        for col_it in range(9):
-            for val_it in range(1, 10):
-                assert Sudoku.check_column(df, col_it, val_it, 1)
-
-        # Blocks.
-        for block_it in range(9):
-            for val_it in range(1, 10):
-                assert Sudoku.check_block(df, block_it, val_it, 1)
-
-        # Positions.
         for row_it in range(9):
             for col_it in range(9):
-                assert Sudoku.check_position(df, row_it, col_it, 1)
+                try:
+                    res[row_it, col_it] = int(data[row_it][col_it])
+                except ValueError:
+                    pass
 
-class WikiIncidenceMatrix(Wiki):
+        return res
+
     @pytest.fixture
-    def cover(self, df: pd.DataFrame) -> IncidenceMatrix:
-        return IncidenceMatrix.read_csv(df)
+    def solver(self) -> exact_cover.solve.Solver:
+        return exact_cover.solve.AlgorithmX()
 
-class WikiDancingLinks(Wiki):
-    @pytest.fixture
-    def cover(self, df: pd.DataFrame) -> DancingLinks:
-        return DancingLinks.read_csv(df)
+    def test(
+        self,
+        sudoku: exact_cover.sudoku.Sudoku,
+        solver: exact_cover.solve.Solver,
+    ):
+        for sol_it in sudoku.solve(solver):
+            for row_it in range(9):
+                res_it = (
+                    sol_it[row_it, col_it]
+                    for col_it in range(9)
+                )
+                assert set(res_it) == set(range(1, 10))
 
-class TestWikiAlgorithmXIncidenceMatrix(
-    cover_test_wiki.WikiAlgorithmX,
-    WikiIncidenceMatrix,
-):
-    ...
+            for col_it in range(9):
+                res_it = (
+                    sol_it[row_it, col_it]
+                    for row_it in range(9)
+                )
+                assert set(res_it) == set(range(1, 10))
 
-class TestWikiAlgorithmXDancingLinks(
-    cover_test_wiki.WikiAlgorithmX,
-    WikiDancingLinks,
-):
-    ...
+            for block_row_it in range(3):
+                for block_col_it in range(3):
+                    res_it = (
+                        sol_it[row_it, col_it]
+                        for row_it in range(3 * block_row_it, 3 * block_row_it + 3)
+                        for col_it in range(3 * block_col_it, 3 * block_col_it + 3)
+                    )
+                    assert set(res_it) == set(range(1, 10))
 
-class TestWikiConstraintProgrammingIncidenceMatrix(
-    cover_test_wiki.WikiConstraintProgramming,
-    WikiIncidenceMatrix,
-):
-    ...
-
-class TestWikiConstraintProgrammingDancingLinks(
-    cover_test_wiki.WikiConstraintProgramming,
-    WikiDancingLinks,
-):
-    ...
+    def test_representation(
+        self,
+        sudoku: exact_cover.sudoku.Sudoku,
+    ):
+        sol = """
++---+---+---+
+|53 | 7 |   |
+|6  |195|   |
+| 98|   | 6 |
++---+---+---+
+|8  | 6 |  3|
+|4  |8 3|  1|
+|7  | 2 |  6|
++---+---+---+
+| 6 |   |28 |
+|   |419|  5|
+|   | 8 | 79|
++---+---+---+
+        """
+        assert str(sudoku).strip() == sol.strip()

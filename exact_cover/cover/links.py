@@ -1,7 +1,7 @@
 import abc
 import collections.abc
 
-from .base import MutableCover
+from . import base
 
 class AbstractNode(abc.ABC):
     @abc.abstractmethod
@@ -42,7 +42,10 @@ class ConstraintNode[ConstraintT](AbstractNode):
         self.above.below = self
         self.below.above = self
 
-class Node[ChoiceT, ConstraintT](ChoiceNode[ChoiceT], ConstraintNode[ConstraintT]):
+class Node[ChoiceT, ConstraintT](
+    ChoiceNode[ChoiceT],
+    ConstraintNode[ConstraintT],
+):
     def __init__(self, choice: ChoiceT, constraint: ConstraintT):
         self.left: ChoiceNode[ChoiceT] = self
         self.right: ChoiceNode[ChoiceT] = self
@@ -64,7 +67,9 @@ class Node[ChoiceT, ConstraintT](ChoiceNode[ChoiceT], ConstraintNode[ConstraintT
         self.above.below = self
         self.below.above = self
 
-class DancingLinks[ChoiceT, ConstraintT](MutableCover[ChoiceT, ConstraintT]):
+class DancingLinks[ChoiceT, ConstraintT](
+    base.MutableCover[ChoiceT, ConstraintT],
+):
     def __init__(
         self,
         choices: collections.abc.Sequence[ChoiceT],
