@@ -5,6 +5,8 @@ import itertools
 import exact_cover.cover
 import exact_cover.solve
 
+from . import types
+
 class Sudoku:
     ROW_SEP = "\n" + 19 * "-" + "\n"
     COL_SEP = "|"
@@ -51,22 +53,22 @@ class Sudoku:
 
         return res
 
-    def build_cover(self) -> exact_cover.cover.DancingLinks[tuple[int, int, int], tuple[str, int, int]]:
+    def build_cover(self) -> exact_cover.cover.DancingLinks[types.ChoiceK, types.ConstraintK]:
         choices = list(itertools.product(range(9), range(9), range(1, 10)))
         constraints = [
-            ("R", row_it, val_it)
+            (types.ConstraintType.ROW, row_it, val_it)
             for row_it in range(9)
             for val_it in range(1, 10)
         ] + [
-            ("C", col_it, val_it)
+            (types.ConstraintType.COLUMN, col_it, val_it)
             for col_it in range(9)
             for val_it in range(1, 10)
         ] + [
-            ("B", block_it, val_it)
+            (types.ConstraintType.BLOCK, block_it, val_it)
             for block_it in range(9)
             for val_it in range(1, 10)
         ] + [
-            ("P", row_it, col_it)
+            (types.ConstraintType.PLACEMENT, row_it, col_it)
             for row_it in range(9)
             for col_it in range(9)
         ]
@@ -77,10 +79,10 @@ class Sudoku:
                 for val_it in range(1, 10):
                     choice_it = (row_it, col_it, val_it)
 
-                    res.create_node(choice_it, ("R", row_it, val_it))
-                    res.create_node(choice_it, ("C", col_it, val_it))
-                    res.create_node(choice_it, ("B", 3 * (row_it // 3) + (col_it // 3), val_it))
-                    res.create_node(choice_it, ("P", row_it, col_it))
+                    res.create_node(choice_it, (types.ConstraintType.ROW, row_it, val_it))
+                    res.create_node(choice_it, (types.ConstraintType.COLUMN, col_it, val_it))
+                    res.create_node(choice_it, (types.ConstraintType.BLOCK, 3 * (row_it // 3) + (col_it // 3), val_it))
+                    res.create_node(choice_it, (types.ConstraintType.PLACEMENT, row_it, col_it))
 
         for row_it in range(9):
             for col_it in range(9):
