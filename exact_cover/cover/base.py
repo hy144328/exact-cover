@@ -1,6 +1,6 @@
 import abc
 
-class Cover[ChoiceT, ConstraintT]:
+class Cover[ChoiceT, ConstraintT](abc.ABC):
     @property
     @abc.abstractmethod
     def choices(self) -> list[ChoiceT]:
@@ -19,6 +19,7 @@ class Cover[ChoiceT, ConstraintT]:
     def get_constraints(self, choice: ChoiceT) -> list[ConstraintT]:
         raise NotImplementedError()
 
+class MutableCover[ChoiceT, ConstraintT](Cover):
     @abc.abstractmethod
     def drop_choice(self, choice: ChoiceT):
         raise NotImplementedError()
