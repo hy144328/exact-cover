@@ -19,6 +19,7 @@ build-backend = "poetry.core.masonry.api"
 
 [dependency-groups]
 dev = [
+    "coverage (>=7.10.6,<8.0.0)",
     "poetry (>=2.2.0,<3.0.0)",
     "pylint (>=3.3.8,<4.0.0)",
     "pytest (>=8.4.2,<9.0.0)"

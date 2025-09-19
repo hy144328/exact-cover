@@ -9,7 +9,7 @@ class AlgorithmX(Solver):
         self,
         cov: exact_cover.cover.Cover[ChoiceT, ConstraintT],
     ) -> collections.abc.Generator[set[ChoiceT]]:
-        if not isinstance(cov, exact_cover.cover.MutableCover):
+        if not isinstance(cov, exact_cover.cover.MutableCover): # pragma: no cover
             raise ValueError("Non-mutable cover too slow.")
 
         yield from self.solve_rec(cov, set())

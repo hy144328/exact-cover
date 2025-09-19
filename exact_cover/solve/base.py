@@ -8,5 +8,5 @@ class Solver(abc.ABC):
     def solve[ChoiceT, _](
         self,
         cov: exact_cover.cover.Cover[ChoiceT, _],
-    ) -> collections.abc.Generator[set[ChoiceT]]:
+    ) -> collections.abc.Generator[set[ChoiceT]]:   # pragma: no cover
         raise NotImplementedError()

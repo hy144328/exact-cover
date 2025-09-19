@@ -5,11 +5,11 @@ from . import base
 
 class AbstractNode(abc.ABC):
     @abc.abstractmethod
-    def cut(self):
+    def cut(self):  # pragma: no cover
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def attach(self):
+    def attach(self):   # pragma: no cover
         raise NotImplementedError()
 
 class ChoiceNode[ChoiceT](AbstractNode):
@@ -154,10 +154,10 @@ class DancingLinks[ChoiceT, ConstraintT](
         while isinstance(node_it, Node):
             node_it = self.restore_node()
 
-        if not isinstance(node_it, ChoiceNode):
+        if not isinstance(node_it, ChoiceNode): # pragma: no cover
             raise ValueError("Expected ChoiceNode.")
 
-        if node_it.choice != choice:
+        if node_it.choice != choice:    # pragma: no cover
             raise ValueError(f"Expected {choice} but got {node_it.choice}.")
 
         self.index[choice] = node_it
@@ -167,10 +167,10 @@ class DancingLinks[ChoiceT, ConstraintT](
         while isinstance(node_it, Node):
             node_it = self.restore_node()
 
-        if not isinstance(node_it, ConstraintNode):
+        if not isinstance(node_it, ConstraintNode): # pragma: no cover
             raise ValueError("Expected ConstraintNode.")
 
-        if node_it.constraint != constraint:
+        if node_it.constraint != constraint:    # pragma: no cover
             raise ValueError(f"Expected {constraint} but got {node_it.constraint}.")
 
         self.columns[constraint] = node_it

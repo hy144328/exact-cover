@@ -1,0 +1,27 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        lfs: true
+    - uses: actions/setup-python@v6
+    - run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install poetry
+        poetry install --with=dev
+    - name: Unit tests
+      run: |
+        poetry run pytest
+    - name: Test coverage
+      run: |
+        poetry run coverage run -m pytest
+        poetry run coverage report
