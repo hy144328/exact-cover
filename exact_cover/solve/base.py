@@ -3,7 +3,7 @@ import collections.abc
 
 import exact_cover.cover
 
-class Solver:
+class Solver(abc.ABC):
     @abc.abstractmethod
     def solve[ChoiceT, _](
         self,
