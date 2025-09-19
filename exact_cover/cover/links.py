@@ -1,193 +1,174 @@
-#!/usr/bin/env python3
+import abc
+import collections.abc
 
-from collections.abc import Sequence
+from .base import MutableCover
 
-from . import Cover
+class AbstractNode(abc.ABC):
+    @abc.abstractmethod
+    def cut(self):
+        raise NotImplementedError()
 
+    @abc.abstractmethod
+    def attach(self):
+        raise NotImplementedError()
 
-class Node:
-    def __init__(self) -> "Node":
-        self.left: Node = self
-        self.right: Node = self
-        self.above: Node = self
-        self.below: Node = self
+class ChoiceNode[ChoiceT](AbstractNode):
+    def __init__(self, choice: ChoiceT):
+        self.left: ChoiceNode[ChoiceT] = self
+        self.right: ChoiceNode[ChoiceT] = self
 
-        self.choice = None
-        self.constraint = None
+        self.choice = choice
 
-    def cut_left(self):
+    def cut(self):
         self.left.right = self.right
-
-    def cut_right(self):
         self.right.left = self.left
 
-    def cut_above(self):
-        self.above.below = self.below
-
-    def cut_below(self):
-        self.below.above = self.above
-
-    def attach_left(self):
+    def attach(self):
         self.left.right = self
-
-    def attach_right(self):
         self.right.left = self
 
-    def attach_above(self):
-        self.above.below = self
+class ConstraintNode[ConstraintT](AbstractNode):
+    def __init__(self, constraint: ConstraintT):
+        self.above: ConstraintNode[ConstraintT] = self
+        self.below: ConstraintNode[ConstraintT] = self
 
-    def attach_below(self):
+        self.constraint = constraint
+
+    def cut(self):
+        self.above.below = self.below
+        self.below.above = self.above
+
+    def attach(self):
+        self.above.below = self
         self.below.above = self
 
+class Node[ChoiceT, ConstraintT](ChoiceNode[ChoiceT], ConstraintNode[ConstraintT]):
+    def __init__(self, choice: ChoiceT, constraint: ConstraintT):
+        self.left: ChoiceNode[ChoiceT] = self
+        self.right: ChoiceNode[ChoiceT] = self
+        self.above: ConstraintNode[ConstraintT] = self
+        self.below: ConstraintNode[ConstraintT] = self
 
-class ChoiceNode(Node):
-    def __init__(self, name) -> "ChoiceNode":
-        super().__init__()
-        self.choice = name
-        self.no_constraints: int = 0
+        self.choice = choice
+        self.constraint = constraint
 
-    def cut_above(self):
-        pass
+    def cut(self):
+        self.left.right = self.right
+        self.right.left = self.left
+        self.above.below = self.below
+        self.below.above = self.above
 
-    def cut_below(self):
-        pass
+    def attach(self):
+        self.left.right = self
+        self.right.left = self
+        self.above.below = self
+        self.below.above = self
 
-    def attach_above(self):
-        pass
-
-    def attach_below(self):
-        pass
-
-
-class ConstraintNode(Node):
-    def __init__(self, name) -> "ConstraintNode":
-        super().__init__()
-        self.constraint = name
-        self.no_choices: int = 0
-
-    def cut_left(self):
-        pass
-
-    def cut_right(self):
-        pass
-
-    def attach_left(self):
-        pass
-
-    def attach_right(self):
-        pass
-
-
-class DancingLinks(Cover):
-    def __init__(self, choices: Sequence, constraints: Sequence) -> "DancingLinks":
-        self.choices: dict[object, ChoiceNode] = {
-            choice_it: ChoiceNode(choice_it) for choice_it in choices
+class DancingLinks[ChoiceT, ConstraintT](MutableCover[ChoiceT, ConstraintT]):
+    def __init__(
+        self,
+        choices: collections.abc.Sequence[ChoiceT],
+        constraints: collections.abc.Sequence[ConstraintT],
+    ):
+        self.index = {
+            choice_it: ChoiceNode(choice_it)
+            for choice_it in choices
         }
-        self.constraints: dict[object, ConstraintNode] = {
-            constraint_it: ConstraintNode(constraint_it) for constraint_it in constraints
+        self.columns = {
+            constraint_it: ConstraintNode(constraint_it)
+            for constraint_it in constraints
         }
-        self.stack: list = []
+        self.stack: list[ChoiceNode[ChoiceT] | ConstraintNode[ConstraintT]] = []
 
-    @staticmethod
-    def read_json(data: dict[object, list]) -> "DancingLinks":
-        choices = list(data.keys())
-        constraints = set()
-        constraints = list(constraints.union(*data.values()))
-
-        res = DancingLinks(choices, constraints)
-        for choice_it in data:
-            for constraint_it in data[choice_it]:
-                res.insert(Node(), choice_it, constraint_it)
-
-        return res
-
-    def push(self, node: Node = None):
-        if not node:
-            node: Node = self.stack.pop()
-
-        node.attach_left()
-        node.attach_right()
-        node.attach_above()
-        node.attach_below()
-
-        return node
-
-    def pop(self, node: Node):
-        node.cut_left()
-        node.cut_right()
-        node.cut_above()
-        node.cut_below()
-
+    def drop_node(self, node: ChoiceNode[ChoiceT] | ConstraintNode[ConstraintT]):
+        node.cut()
         self.stack.append(node)
 
-    def insert(self, node: Node, left, above):
-        node_choice: ChoiceNode = self.choices[left]
-        node_constraint: ConstraintNode = self.constraints[above]
+    def restore_node(self) -> ChoiceNode[ChoiceT] | ConstraintNode[ConstraintT]:
+        node = self.stack.pop()
+        node.attach()
+        return node
+
+    def create_node(self, choice: ChoiceT, constraint: ConstraintT) -> Node:
+        node_choice = self.index[choice]
+        node_constraint = self.columns[constraint]
+        node = Node(choice, constraint)
 
         node.left = node_choice
         node.right = node_choice.right
         node.above = node_constraint
         node.below = node_constraint.below
 
-        node.choice = left
-        node.constraint = above
+        node.attach()
+        return node
 
-        self.push(node)
+    @property
+    def choices(self) -> list[ChoiceT]:
+        return list(self.index.keys())
 
-    def choose_choices(self, constraint) -> Sequence:
-        node = self.constraints[constraint]
-        res = []
+    @property
+    def constraints(self) -> list[ConstraintT]:
+        return list(self.columns.keys())
 
-        node_it = node.below
-        while not isinstance(node_it, ConstraintNode):
+    def get_choices(self, constraint: ConstraintT) -> list[ChoiceT]:
+        node_it = self.columns[constraint].below
+        res: list[ChoiceT] = []
+
+        while isinstance(node_it, Node):
             res.append(node_it.choice)
             node_it = node_it.below
 
         return res
 
-    def choose_constraints(self, choice) -> Sequence:
-        node = self.choices[choice]
-        res = []
+    def get_constraints(self, choice: ChoiceT) -> list[ConstraintT]:
+        node_it = self.index[choice].right
+        res: list[ConstraintT] = []
 
-        node_it = node.right
-        while not isinstance(node_it, ChoiceNode):
+        while isinstance(node_it, Node):
             res.append(node_it.constraint)
             node_it = node_it.right
 
         return res
 
-    def delete_choices(self, choices: Sequence):
-        for choice_it in choices:
-            node_it: ChoiceNode = self.choices.pop(choice_it)
-            while node_it is not node_it.right:
-                self.pop(node_it)
-                node_it = node_it.right
-            self.pop(node_it)
+    def drop_choice(self, choice: ChoiceT):
+        node_it = self.index.pop(choice)
+        while node_it is not node_it.right:
+            self.drop_node(node_it)
+            node_it = node_it.right
+        self.drop_node(node_it)
 
-    def delete_constraints(self, constraints: Sequence):
-        for constraint_it in constraints:
-            node_it: ConstraintNode = self.constraints.pop(constraint_it)
-            while node_it is not node_it.below:
-                self.pop(node_it)
-                node_it = node_it.below
-            self.pop(node_it)
+    def drop_constraint(self, constraint: ConstraintT):
+        node_it = self.columns.pop(constraint)
+        while node_it is not node_it.below:
+            self.drop_node(node_it)
+            node_it = node_it.below
+        self.drop_node(node_it)
 
-    def restore_choices(self, choices: Sequence):
-        for choice_it in choices:
-            node_it: Node = self.push()
-            while not isinstance(node_it, ChoiceNode):
-                node_it = self.push()
-            self.choices[choice_it] = node_it
+    def restore_choice(self, choice: ChoiceT):
+        node_it = self.restore_node()
+        while isinstance(node_it, Node):
+            node_it = self.restore_node()
 
-    def restore_constraints(self, constraints: Sequence):
-        for constraint_it in constraints:
-            node_it: Node = self.push()
-            while not isinstance(node_it, ConstraintNode):
-                node_it = self.push()
-            self.constraints[constraint_it] = node_it
+        if not isinstance(node_it, ChoiceNode):
+            raise ValueError("Expected ChoiceNode.")
 
-    def next_constraint(self):
-        try:
-            return min(self.constraints)
-        except ValueError:
-            raise StopIteration
+        if node_it.choice != choice:
+            raise ValueError(f"Expected {choice} but got {node_it.choice}.")
+
+        self.index[choice] = node_it
+
+    def restore_constraint(self, constraint: ConstraintT):
+        node_it = self.restore_node()
+        while isinstance(node_it, Node):
+            node_it = self.restore_node()
+
+        if not isinstance(node_it, ConstraintNode):
+            raise ValueError("Expected ConstraintNode.")
+
+        if node_it.constraint != constraint:
+            raise ValueError(f"Expected {constraint} but got {node_it.constraint}.")
+
+        self.columns[constraint] = node_it
+
+    def next_constraint(self) -> ConstraintT:
+        return next(iter(self.columns))

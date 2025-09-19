@@ -1,0 +1,36 @@
+import collections.abc
+
+import pulp
+
+import exact_cover.cover
+
+from .base import Solver
+
+class ConstraintProgramming(Solver):
+    def solve[ChoiceT, ConstraintT](
+        self,
+        cov: exact_cover.cover.Cover[ChoiceT, ConstraintT],
+    ) -> collections.abc.Generator[set[ChoiceT]]:
+        prob = pulp.LpProblem()
+        choices = {
+            choice_it: pulp.LpVariable(str(choice_it), 0, 1, pulp.LpInteger)
+            for choice_it in cov.choices
+        }
+        constraints = {
+            constraint_it: []
+            for constraint_it in cov.constraints
+        }
+
+        for choice_it in cov.choices:
+            for constraint_it in cov.get_constraints(choice_it):
+                constraints[constraint_it].append(choices[choice_it])
+
+        for constraint_it in constraints.values():
+            prob += (pulp.lpSum(constraint_it) == 1)
+
+        prob.solve()
+        yield {
+            next(k for k, v in choices.items() if var_it is v)
+            for var_it in prob.variables()
+            if var_it.varValue == 1
+        }
