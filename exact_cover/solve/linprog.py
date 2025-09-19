@@ -4,9 +4,9 @@ import pulp
 
 import exact_cover.cover
 
-from .base import Solver
+from . import base
 
-class ConstraintProgramming(Solver):
+class ConstraintProgramming(base.Solver):
     def solve[ChoiceT, ConstraintT](
         self,
         cov: exact_cover.cover.Cover[ChoiceT, ConstraintT],
