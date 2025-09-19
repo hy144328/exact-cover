@@ -29,6 +29,7 @@ dev = [
 optional = true
 
 [tool.poetry.group.cv.dependencies]
+matplotlib = ">=3.10.6,<4.0.0"
 nbconvert = ">=7.16.6,<8.0.0"
 nbdime = ">=4.0.2,<5.0.0"
 notebook = "<7.0.0"
