@@ -5,7 +5,7 @@ import itertools
 import exact_cover.cover
 import exact_cover.solve
 
-from . import types
+from . import types, util
 
 class Sudoku:
     ROW_SEP = "\n" + 19 * "-" + "\n"
@@ -56,19 +56,19 @@ class Sudoku:
     def build_cover(self) -> exact_cover.cover.DancingLinks[types.ChoiceK, types.ConstraintK]:
         choices = list(itertools.product(range(9), range(9), range(1, 10)))
         constraints = [
-            (types.ConstraintType.ROW, row_it, val_it)
+            util.identify_row_constraint(row_it, val_it)
             for row_it in range(9)
             for val_it in range(1, 10)
         ] + [
-            (types.ConstraintType.COLUMN, col_it, val_it)
+            util.identify_column_constraint(col_it, val_it)
             for col_it in range(9)
             for val_it in range(1, 10)
         ] + [
-            (types.ConstraintType.BLOCK, block_it, val_it)
+            util.identify_block_constraint(block_it // 3, block_it % 3, val_it)
             for block_it in range(9)
             for val_it in range(1, 10)
         ] + [
-            (types.ConstraintType.PLACEMENT, row_it, col_it)
+            util.identify_placement_constraint(row_it, col_it)
             for row_it in range(9)
             for col_it in range(9)
         ]
@@ -77,12 +77,12 @@ class Sudoku:
         for row_it in range(9):
             for col_it in range(9):
                 for val_it in range(1, 10):
-                    choice_it = (row_it, col_it, val_it)
+                    choice_it = util.identify_choice(row_it, col_it, val_it)
 
-                    res.create_node(choice_it, (types.ConstraintType.ROW, row_it, val_it))
-                    res.create_node(choice_it, (types.ConstraintType.COLUMN, col_it, val_it))
-                    res.create_node(choice_it, (types.ConstraintType.BLOCK, 3 * (row_it // 3) + (col_it // 3), val_it))
-                    res.create_node(choice_it, (types.ConstraintType.PLACEMENT, row_it, col_it))
+                    res.create_node(choice_it, util.identify_row_constraint(row_it, val_it))
+                    res.create_node(choice_it, util.identify_column_constraint(col_it, val_it))
+                    res.create_node(choice_it, util.identify_block_constraint(row_it // 3, col_it // 3, val_it))
+                    res.create_node(choice_it, util.identify_placement_constraint(row_it, col_it))
 
         for row_it in range(9):
             for col_it in range(9):
@@ -90,7 +90,7 @@ class Sudoku:
                 if val_it is None:
                     continue
 
-                choice_it = (row_it, col_it, val_it)
+                choice_it = util.identify_choice(row_it, col_it, val_it)
                 res.choose(choice_it)
 
         return res
