@@ -1,0 +1,26 @@
+[project]
+name = "exact-cover"
+version = "0.1.0"
+description = "Exact cover for Sudoku."
+authors = [
+    {name = "Hans Yu",email = "hans.yu@outlook.de"}
+]
+license = {text = "GPL-3.0-or-later"}
+readme = "README.md"
+requires-python = ">=3.13,<4.0"
+dependencies = [
+    "pulp (>=3.3.0,<4.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "coverage (>=7.10.6,<8.0.0)",
+    "poetry (>=2.2.0,<3.0.0)",
+    "pylint (>=3.3.8,<4.0.0)",
+    "pytest (>=8.4.2,<9.0.0)"
+]
