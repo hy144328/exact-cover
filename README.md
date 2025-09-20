@@ -2,6 +2,10 @@
 
 Exact cover for Sudoku.
 
+## Dependencies
+
+*   [Tesseract](https://tesseract-ocr.github.io/).
+
 ## Resources
 
 Computer vision:
