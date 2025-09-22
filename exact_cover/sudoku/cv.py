@@ -86,15 +86,13 @@ class SudokuDetector:
             for j in range(9):
                 img_it = img[i * 50:(i + 1) * 50, j * 50:(j + 1) * 50]
                 _, img_it = cv.threshold(img_it, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
-                img_it = cv.bitwise_not(img_it)
 
                 img_it_wo_border = skimage.segmentation.clear_border(
-                    img_it,
+                    cv.bitwise_not(img_it),
                     self.border_buffer_size,
                 )
-                img_it_wo_border = cv.bitwise_not(img_it_wo_border)
 
-                res[i][j] = img_it_wo_border
+                res[i][j] = cv.bitwise_not(img_it_wo_border)
 
         return res
 
