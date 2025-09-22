@@ -132,3 +132,37 @@ class TestScreenshot2(TestCV):
                     pass
 
         return res
+
+class TestAakash(TestCV):
+    @pytest.fixture
+    def img(self) -> npt.NDArray[np.uint8]:
+        res = cv.imread(
+            "assets/opencv_sudoku_puzzle_sudoku_puzzle-768x817.webp",
+            cv.IMREAD_GRAYSCALE,
+        )
+        return res
+
+    @pytest.fixture
+    def sol(self) -> list[list[int | None]]:
+        res: list[list[int | None]] = [
+            [
+                None
+                for _ in range(9)
+            ]
+            for _ in range(9)
+        ]
+
+        with open("assets/opencv_sudoku_puzzle_sudoku_puzzle-768x817.csv") as f:
+            data = [
+                line_it.split(",")
+                for line_it in f
+            ]
+
+        for row_it in range(9):
+            for col_it in range(9):
+                try:
+                    res[row_it][col_it] = int(data[row_it][col_it])
+                except ValueError:
+                    pass
+
+        return res
