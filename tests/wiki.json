@@ -1,8 +1,3 @@
-{
-	"A": [1, 4, 7],
-	"B": [1, 4],
-	"C": [4, 5, 7],
-	"D": [3, 5, 6],
-	"E": [2, 3, 6, 7],
-	"F": [2, 7]
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:69a796f968abaa2b71c10a8ee22ea1e8963908e008409bc85e078c52d415d52b
+size 102
