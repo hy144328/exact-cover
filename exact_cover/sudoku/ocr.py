@@ -23,21 +23,11 @@ def parse_digit(img) -> tuple[int, float] | tuple[None, None]:
         for row_it in csv_reader
     ]
 
-    for row_it in csv_data:
-        print(row_it)
-
     csv_row = next(
         (row_it for row_it in csv_data if row_it["text"]),
         None,
     )
-    print(csv_row)
     if csv_row is None:
         return None, None
 
-    if not csv_row["text"].isdigit():   # pragma: no cover
-        raise ValueError(f"Text field is not numeric.")
-
-    if not csv_row["conf"].isdigit():   # pragma: no cover
-        raise ValueError(f"Conf field is not numeric.")
-
-    return int(csv_row["text"]), 0.01 * int(csv_row["conf"])
+    return int(csv_row["text"]), 0.01 * float(csv_row["conf"])
