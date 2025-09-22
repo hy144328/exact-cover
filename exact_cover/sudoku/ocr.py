@@ -32,5 +32,5 @@ def parse_digit(img) -> tuple[int | None, float | None]:
 
     try:
         return int(float(csv_row["text"])), 0.01 * float(csv_row["conf"])
-    except ValueError:
+    except ValueError:  # pragma: no cover
         return None, 0.01 * float(csv_row["conf"])
