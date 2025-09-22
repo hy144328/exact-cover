@@ -32,28 +32,23 @@ class SudokuDetector:
             ],
         )
 
-    def apply_blur(self, img: npt.NDArray[np.uint8]) -> npt.NDArray[np.uint8]:
-        res = cv.GaussianBlur(
+    def extract_board(self, img: npt.NDArray[np.uint8]) -> collections.abc.Generator[npt.NDArray[np.uint8]]:
+        blurred = cv.GaussianBlur(
             img,
             (self.blur_kernel_size, self.blur_kernel_size),
             0,
         )
-        return res
-
-    def apply_threshold(self, img: npt.NDArray[np.uint8]) -> npt.NDArray[np.uint8]:
-        res = cv.adaptiveThreshold(
-            img,
+        threshed = cv.adaptiveThreshold(
+            blurred,
             255,
             cv.ADAPTIVE_THRESH_GAUSSIAN_C,
             cv.THRESH_BINARY,
             blockSize = self.thresh_block_size,
             C = self.thresh_C,
         )
-        return res
 
-    def extract_board(self, img: npt.NDArray[np.uint8]) -> collections.abc.Generator[npt.NDArray[np.uint8]]:
         cnts, _ = cv.findContours(
-            cv.bitwise_not(img),
+            cv.bitwise_not(threshed),
             cv.RETR_LIST,
             cv.CHAIN_APPROX_SIMPLE,
         )
