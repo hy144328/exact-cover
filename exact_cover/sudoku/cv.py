@@ -112,6 +112,7 @@ class SudokuDetector:
             cnts,
             key = cv.contourArea,
         )
+        #cnt = cv.approxPolyDP(cnt, 0.05, True)
 
         mask = np.zeros(img.shape, dtype=np.uint8)
         cv.drawContours(mask, [cnt], 0, 255, cv.FILLED)
@@ -123,6 +124,11 @@ class SudokuDetector:
             mask = mask,
         )
         res = cv.bitwise_not(res)
+
+        #res = cv.dilate(
+        #    res,
+        #    cv.getStructuringElement(cv.MORPH_RECT, (3, 3)),
+        #)
 
         return res
 
