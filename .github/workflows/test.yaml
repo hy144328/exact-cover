@@ -20,6 +20,7 @@ jobs:
         poetry install --with=dev
     - run: |
         sudo apt-get -y install tesseract-ocr
+        tesseract --version
     - name: Unit tests
       run: |
         poetry run pytest
