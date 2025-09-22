@@ -3,7 +3,7 @@ import itertools
 
 import pytesseract
 
-def parse_digit(img) -> tuple[int, float] | tuple[None, None]:
+def parse_digit(img) -> tuple[int | None, float | None]:
     res = pytesseract.image_to_data(
         img,
         config = "--psm 10 outputbase digits",
@@ -30,4 +30,7 @@ def parse_digit(img) -> tuple[int, float] | tuple[None, None]:
     if csv_row is None:
         return None, None
 
-    return int(csv_row["text"]), 0.01 * float(csv_row["conf"])
+    try:
+        return int(float(csv_row["text"])), 0.01 * float(csv_row["conf"])
+    except ValueError:
+        return None, 0.01 * float(csv_row["conf"])
