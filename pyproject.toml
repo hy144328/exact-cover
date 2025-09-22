@@ -9,7 +9,10 @@ license = {text = "GPL-3.0-or-later"}
 readme = "README.md"
 requires-python = ">=3.13,<4.0"
 dependencies = [
-    "pulp (>=3.3.0,<4.0.0)"
+    "opencv-python (>=4.12.0.88,<5.0.0.0)",
+    "pulp (>=3.3.0,<4.0.0)",
+    "pytesseract (>=0.3.13,<0.4.0)",
+    "scikit-image (>=0.25.2,<0.26.0)"
 ]
 
 
@@ -24,3 +27,12 @@ dev = [
     "pylint (>=3.3.8,<4.0.0)",
     "pytest (>=8.4.2,<9.0.0)"
 ]
+
+[tool.poetry.group.jupyter]
+optional = true
+
+[tool.poetry.group.jupyter.dependencies]
+matplotlib = ">=3.10.6,<4.0.0"
+nbconvert = ">=7.16.6,<8.0.0"
+nbdime = ">=4.0.2,<5.0.0"
+notebook = "<7.0.0"
