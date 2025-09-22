@@ -103,17 +103,15 @@ class SudokuDetector:
         return res
 
     def normalize_contour(self, cnt: npt.NDArray[np.int32]) -> npt.NDArray[np.int32] | None:
-        if cnt.shape != (4, 1, 2):  # pragma: no cover
+        try:
+            cnt = cv.approxPolyN(cnt, 4)
+            cnt = cnt[0, :, :].reshape((4, 1, 2))
+        except:
             return None
 
-        if not cv.isContourConvex(cnt): # pragma: no cover
-            return None
-
-        no_points = cnt.shape[0]
         cnt_center = cnt.mean(axis=0).flatten()
-
         cnt_indices = sorted(
-            range(no_points),
+            range(4),
             key = lambda point_ct: np.atan2(
                 *reversed(
                     (cnt[point_ct, 0, :] - cnt_center).tolist(),
