@@ -96,6 +96,33 @@ class SudokuDetector:
 
         return res
 
+    def extract_symbol(self, img: npt.NDArray[np.uint8]) -> npt.NDArray[np.uint8]:
+        cnts, _ = cv.findContours(
+            cv.bitwise_not(img),
+            cv.RETR_EXTERNAL,
+            cv.CHAIN_APPROX_SIMPLE,
+        )
+        if len(cnts) == 0:
+            return img
+
+        cnt = max(
+            cnts,
+            key = cv.contourArea,
+        )
+
+        mask = np.zeros(img.shape, dtype=np.uint8)
+        cv.drawContours(mask, [cnt], 0, 255, cv.FILLED)
+
+        img_inv = cv.bitwise_not(img)
+        res = cv.bitwise_and(
+            img_inv,
+            img_inv,
+            mask = mask,
+        )
+        res = cv.bitwise_not(res)
+
+        return res
+
     def normalize_contour(self, cnt: npt.NDArray[np.int32]) -> npt.NDArray[np.int32] | None:
         try:
             cnt = cv.approxPolyN(cnt, 4)
