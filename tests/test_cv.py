@@ -50,17 +50,17 @@ class TestCV(abc.ABC):
         sol: list[list[int | None]],
         detector: exact_cover.sudoku.cv.SudokuDetector,
     ):
-        img = detector.apply_blur(img)
-        img = detector.apply_threshold(img)
-        img = next(detector.extract_board(img))
-
-        squares = detector.extract_squares(img)
+        board = next(detector.extract_board(img))
+        cv.imwrite("board.png", board)
+        squares = detector.extract_squares(board)
 
         for i in range(9):
             for j in range(9):
-                img_it = squares[i][j]
+                img_it = detector.extract_symbol(squares[i][j])
+                cv.imwrite(f"square_{i:02}_{j:02}.png", img_it)
                 res_it, conf_it = exact_cover.sudoku.ocr.parse_digit(img_it)
 
+                print(i, j, res_it, sol[i][j], conf_it)
                 assert res_it == sol[i][j]
                 if conf_it is not None:
                     assert conf_it >= 0.6
