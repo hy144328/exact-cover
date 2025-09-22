@@ -23,6 +23,9 @@ def parse_digit(img) -> tuple[int, float] | tuple[None, None]:
         for row_it in csv_reader
     ]
 
+    for row_it in csv_data:
+        print(row_it)
+
     csv_row = next(
         (row_it for row_it in csv_data if row_it["text"]),
         None,
