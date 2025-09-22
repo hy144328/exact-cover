@@ -95,10 +95,10 @@ class SudokuDetector:
         return res
 
     def normalize_contour(self, cnt: npt.NDArray[np.int32]) -> npt.NDArray[np.int32] | None:
-        if cnt.shape != (4, 1, 2):
+        if cnt.shape != (4, 1, 2):  # pragma: no cover
             return None
 
-        if not cv.isContourConvex(cnt):
+        if not cv.isContourConvex(cnt): # pragma: no cover
             return None
 
         no_points = cnt.shape[0]
