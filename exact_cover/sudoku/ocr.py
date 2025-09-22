@@ -30,6 +30,7 @@ def parse_digit(img) -> tuple[int, float] | tuple[None, None]:
         (row_it for row_it in csv_data if row_it["text"]),
         None,
     )
+    print(csv_row)
     if csv_row is None:
         return None, None
 
