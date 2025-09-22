@@ -5,6 +5,7 @@ import numpy as np
 import numpy.typing as npt
 import skimage.segmentation
 
+BLUR_KERNEL_SIZE = 3
 BORDER_BUFFER_SIZE = 3
 THRESH_BLOCK_SIZE = 11
 THRESH_C = 2
@@ -12,10 +13,12 @@ THRESH_C = 2
 class SudokuDetector:
     def __init__(
         self,
+        blur_kernel_size: int = BLUR_KERNEL_SIZE,
         border_buffer_size: int = BORDER_BUFFER_SIZE,
         thresh_block_size: int = THRESH_BLOCK_SIZE,
         thresh_C: int = THRESH_C,
     ):
+        self.blur_kernel_size = blur_kernel_size
         self.border_buffer_size = border_buffer_size
         self.thresh_block_size = thresh_block_size
         self.thresh_C = thresh_C
@@ -30,7 +33,12 @@ class SudokuDetector:
         )
 
     def apply_blur(self, img: npt.NDArray[np.uint8]) -> npt.NDArray[np.uint8]:
-        return img
+        res = cv.GaussianBlur(
+            img,
+            (self.blur_kernel_size, self.blur_kernel_size),
+            0,
+        )
+        return res
 
     def apply_threshold(self, img: npt.NDArray[np.uint8]) -> npt.NDArray[np.uint8]:
         res = cv.adaptiveThreshold(
