@@ -59,7 +59,7 @@ class TestCV(abc.ABC):
         for i in range(9):
             for j in range(9):
                 img_it = detector.extract_symbol(squares[i][j])
-                res_it, conf_it = exact_cover.sudoku.ocr.parse_digit(img_it)
+                res_it, conf_it = exact_cover.sudoku.ocr.parse_digit(cv.resize(img_it, (28, 28), interpolation=cv.INTER_AREA))
 
                 if res_it == sol[i][j]:
                     success.append((i, j))
