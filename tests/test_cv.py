@@ -68,7 +68,7 @@ class TestCV(abc.ABC):
                     failure.append((i, j))
 
         assert sum(1 for i, j in success if sol[i][j] is None) == sum(1 for i in range(9) for j in range(9) if sol[i][j] is None)
-        assert sum(1 for i, j in success if sol[i][j] is not None) > 0.95 * sum(1 for i in range(9) for j in range(9) if sol[i][j] is not None)
+        assert sum(1 for i, j in success if sol[i][j] is not None) == sum(1 for i in range(9) for j in range(9) if sol[i][j] is not None)
 
 class TestScreenshot1(TestCV):
     @pytest.fixture
