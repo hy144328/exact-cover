@@ -1,10 +1,9 @@
 import csv
 import itertools
-import typing
 
 import pytesseract
 
-def parse_digit(img) -> typing.Tuple[int, float] | typing.Tuple[None, None]:
+def parse_digit(img) -> tuple[int, float] | tuple[None, None]:
     res = pytesseract.image_to_data(
         img,
         config = "--psm 10 outputbase digits",
