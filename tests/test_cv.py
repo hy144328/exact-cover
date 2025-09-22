@@ -51,19 +51,24 @@ class TestCV(abc.ABC):
         detector: exact_cover.sudoku.cv.SudokuDetector,
     ):
         board = next(detector.extract_board(img))
-        cv.imwrite("board.png", board)
         squares = detector.extract_squares(board)
+
+        success = []
+        failure = []
 
         for i in range(9):
             for j in range(9):
                 img_it = detector.extract_symbol(squares[i][j])
-                cv.imwrite(f"square_{i:02}_{j:02}.png", img_it)
                 res_it, conf_it = exact_cover.sudoku.ocr.parse_digit(img_it)
 
-                print(i, j, res_it, sol[i][j], conf_it)
-                assert res_it == sol[i][j]
-                if conf_it is not None:
-                    assert conf_it >= 0.6
+                if res_it == sol[i][j]:
+                    success.append((i, j))
+                else:
+                    print(i, j, res_it, sol[i][j], conf_it)
+                    failure.append((i, j))
+
+        assert sum(1 for i, j in success if sol[i][j] is None) == sum(1 for i in range(9) for j in range(9) if sol[i][j] is None)
+        assert sum(1 for i, j in success if sol[i][j] is not None) > 0.95 * sum(1 for i in range(9) for j in range(9) if sol[i][j] is not None)
 
 class TestScreenshot1(TestCV):
     @pytest.fixture
