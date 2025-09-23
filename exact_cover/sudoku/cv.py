@@ -46,13 +46,13 @@ class SudokuDetector:
             blurred,
             255,
             cv.ADAPTIVE_THRESH_GAUSSIAN_C,
-            cv.THRESH_BINARY,
+            cv.THRESH_BINARY_INV,
             blockSize = self.thresh_block_size,
             C = self.thresh_C,
         )
 
         cnts, _ = cv.findContours(
-            cv.bitwise_not(threshed),
+            threshed,
             cv.RETR_LIST,
             cv.CHAIN_APPROX_SIMPLE,
         )
@@ -93,14 +93,22 @@ class SudokuDetector:
                 j_0 = j * self.no_points_per_segment
                 j_1 = (j + 1) * self.no_points_per_segment
                 img_it = img[i_0:i_1, j_0:j_1]
-                _, img_it = cv.threshold(img_it, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
 
+                _, img_it_w_border = cv.threshold(
+                    img_it,
+                    0,
+                    255,
+                    cv.THRESH_BINARY_INV | cv.THRESH_OTSU,
+                )
                 img_it_wo_border = skimage.segmentation.clear_border(
-                    cv.bitwise_not(img_it),
+                    img_it_w_border,
                     self.border_buffer_size,
                 )
 
-                res[i][j] = cv.bitwise_not(img_it_wo_border)
+                res[i][j] = self.apply_mask(
+                    img_it,
+                    mask = img_it_wo_border,
+                )
 
         return res
 
@@ -155,3 +163,17 @@ class SudokuDetector:
         )
 
         return cnt[cnt_indices, :, :]
+
+    def apply_mask(self,
+        img: npt.NDArray[np.int32],
+        mask: npt.NDArray[np.int32],
+    ) -> npt.NDArray[np.int32]:
+        img_inv = cv.bitwise_not(img)
+        res = cv.bitwise_and(
+            img_inv,
+            img_inv,
+            mask = mask,
+        )
+        res = cv.bitwise_not(res)
+
+        return res
