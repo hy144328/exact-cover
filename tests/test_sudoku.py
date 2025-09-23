@@ -1,3 +1,8 @@
+import abc
+
+import cv2 as cv
+import numpy as np
+import numpy.typing as npt
 import pytest
 
 import exact_cover.solve
@@ -76,3 +81,79 @@ class TestWiki:
 +---+---+---+
         """
         assert str(sudoku).strip() == sol.strip()
+
+class TestCV(abc.ABC):
+    @pytest.fixture
+    @abc.abstractmethod
+    def img(self) -> npt.NDArray[np.uint8]:
+        raise NotImplementedError()
+
+    @pytest.fixture
+    def solver(self) -> exact_cover.solve.Solver:
+        return exact_cover.solve.AlgorithmX()
+
+    def test(
+        self,
+        img: npt.NDArray[np.uint8],
+        solver: exact_cover.solve.Solver,
+    ):
+        puzzle = exact_cover.sudoku.read_sudoku(img)
+
+        print("Puzzle:")
+        print(puzzle)
+        print("\n")
+
+        print("Solutions:")
+        for sol_it in puzzle.solve(solver):
+            print(sol_it)
+            print("\n")
+
+            for row_it in range(9):
+                res_it = (
+                    sol_it[row_it, col_it]
+                    for col_it in range(9)
+                )
+                assert set(res_it) == set(range(1, 10))
+
+            for col_it in range(9):
+                res_it = (
+                    sol_it[row_it, col_it]
+                    for row_it in range(9)
+                )
+                assert set(res_it) == set(range(1, 10))
+
+            for block_row_it in range(3):
+                for block_col_it in range(3):
+                    res_it = (
+                        sol_it[row_it, col_it]
+                        for row_it in range(3 * block_row_it, 3 * block_row_it + 3)
+                        for col_it in range(3 * block_col_it, 3 * block_col_it + 3)
+                    )
+                    assert set(res_it) == set(range(1, 10))
+
+class TestScreenshot1(TestCV):
+    @pytest.fixture
+    def img(self) -> npt.NDArray[np.uint8]:
+        res = cv.imread(
+            "assets/Screenshot from 2022-01-02 21-00-15.png",
+            cv.IMREAD_GRAYSCALE,
+        )
+        return res
+
+class TestScreenshot2(TestCV):
+    @pytest.fixture
+    def img(self) -> npt.NDArray[np.uint8]:
+        res = cv.imread(
+            "assets/Screenshot from 2022-01-06 13-35-44.png",
+            cv.IMREAD_GRAYSCALE,
+        )
+        return res
+
+class TestAakash(TestCV):
+    @pytest.fixture
+    def img(self) -> npt.NDArray[np.uint8]:
+        res = cv.imread(
+            "assets/opencv_sudoku_puzzle_sudoku_puzzle-768x817.webp",
+            cv.IMREAD_GRAYSCALE,
+        )
+        return res
