@@ -51,6 +51,7 @@ class TestCV(abc.ABC):
         detector: exact_cover.sudoku.cv.SudokuDetector,
     ):
         board = next(detector.extract_board(img))
+        cv.imwrite("output.d/board.png", board)
         squares = detector.extract_squares(board)
 
         success = []
@@ -59,16 +60,25 @@ class TestCV(abc.ABC):
         for i in range(9):
             for j in range(9):
                 img_it = detector.extract_symbol(squares[i][j])
-                res_it, conf_it = exact_cover.sudoku.ocr.parse_digit(img_it)
+
+                if img_it is None:
+                    res_it, conf_it = None, None
+                else:
+                    res_it, conf_it = exact_cover.sudoku.ocr.parse_digit(img_it)
+
+                    if res_it is None:
+                        img_it = detector.cut_region_of_interest(img_it)
+                        res_it, conf_it = exact_cover.sudoku.ocr.parse_digit(img_it)
 
                 if res_it == sol[i][j]:
                     success.append((i, j))
                 else:
-                    print(i, j, res_it, sol[i][j], conf_it)
+                    cv.imwrite(f"output.d/square_{i}_{j}.png", img_it)
+                    print(f"{i}, {j}: {res_it}/{sol[i][j]} ({conf_it}).")
                     failure.append((i, j))
 
         assert sum(1 for i, j in success if sol[i][j] is None) == sum(1 for i in range(9) for j in range(9) if sol[i][j] is None)
-        assert sum(1 for i, j in success if sol[i][j] is not None) > 0.95 * sum(1 for i in range(9) for j in range(9) if sol[i][j] is not None)
+        assert sum(1 for i, j in success if sol[i][j] is not None) == sum(1 for i in range(9) for j in range(9) if sol[i][j] is not None)
 
 class TestScreenshot1(TestCV):
     @pytest.fixture
