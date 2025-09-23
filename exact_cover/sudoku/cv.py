@@ -116,7 +116,7 @@ class SudokuDetector:
             cv.CHAIN_APPROX_SIMPLE,
         )
         if len(cnts) == 0:
-            return img
+            return None
 
         cnt = max(
             cnts,
@@ -197,9 +197,6 @@ class SudokuDetector:
             cv.RETR_EXTERNAL,
             cv.CHAIN_APPROX_SIMPLE,
         )
-        if len(cnts) == 0:
-            return img
-
         cnt = max(
             cnts,
             key = cv.contourArea,
