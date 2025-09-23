@@ -5,7 +5,6 @@ import numpy as np
 import numpy.typing as npt
 import pytest
 
-import exact_cover
 import exact_cover.solve
 import exact_cover.sudoku
 
@@ -89,18 +88,23 @@ class TestCV(abc.ABC):
     def img(self) -> npt.NDArray[np.uint8]:
         raise NotImplementedError()
 
+    @pytest.fixture
+    def solver(self) -> exact_cover.solve.Solver:
+        return exact_cover.solve.AlgorithmX()
+
     def test(
         self,
         img: npt.NDArray[np.uint8],
+        solver: exact_cover.solve.Solver,
     ):
-        puzzle, solutions = exact_cover.parse_and_solve_sudoku(img)
+        puzzle = exact_cover.sudoku.read_sudoku(img)
 
         print("Puzzle:")
         print(puzzle)
         print("\n")
 
         print("Solutions:")
-        for sol_it in solutions:
+        for sol_it in puzzle.solve(solver):
             print(sol_it)
             print("\n")
 
