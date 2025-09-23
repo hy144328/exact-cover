@@ -128,6 +128,7 @@ class SudokuDetector:
         cv.drawContours(mask, [cnt], 0, 255, cv.FILLED)
 
         res = self.apply_mask(img, mask=mask)
+        res = self.increase_contrast(res)
 
         #res = cv.dilate(
         #    res,
@@ -155,7 +156,8 @@ class SudokuDetector:
 
         return cnt[cnt_indices, :, :]
 
-    def apply_mask(self,
+    def apply_mask(
+        self,
         img: npt.NDArray[np.int32],
         mask: npt.NDArray[np.int32],
     ) -> npt.NDArray[np.int32]:
@@ -165,6 +167,19 @@ class SudokuDetector:
             img_inv,
             mask = mask,
         )
+        res = cv.bitwise_not(res)
+
+        return res
+
+    def increase_contrast(
+        self,
+        img: npt.NDArray[np.int32],
+        fac: float | None = None,
+    ) -> npt.NDArray[np.int32]:
+        img_inv = cv.bitwise_not(img)
+        fac = fac or 255 / img_inv.max()
+
+        res = cv.convertScaleAbs(img_inv, alpha=fac)
         res = cv.bitwise_not(res)
 
         return res
