@@ -125,7 +125,7 @@ class SudokuDetector:
         #cnt = cv.approxPolyDP(cnt, 0.05, True)
 
         _, _, _, h = cv.boundingRect(cnt)
-        if h < 0.4 * self.no_points_per_segment:
+        if h < 0.4 * self.no_points_per_segment:    # pragma: no cover
             return None
 
         mask = np.zeros(img.shape, dtype=np.uint8)
