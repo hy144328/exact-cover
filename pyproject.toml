@@ -1,6 +1,6 @@
 [project]
 name = "exact-cover"
-version = "0.1.0"
+version = "0.2.0"
 description = "Exact cover for Sudoku."
 authors = [
     {name = "Hans Yu",email = "hans.yu@outlook.de"}
