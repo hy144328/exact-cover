@@ -51,6 +51,7 @@ class TestCV(abc.ABC):
         detector: exact_cover.sudoku.cv.SudokuDetector,
     ):
         board = next(detector.extract_board(img))
+        cv.imwrite("output.d/board.png", board)
         squares = detector.extract_squares(board)
 
         success = []
@@ -64,7 +65,8 @@ class TestCV(abc.ABC):
                 if res_it == sol[i][j]:
                     success.append((i, j))
                 else:
-                    print(i, j, res_it, sol[i][j], conf_it)
+                    cv.imwrite(f"output.d/square_{i}_{j}.png", img_it)
+                    print(f"{i}, {j}: {res_it}/{sol[i][j]} ({conf_it}).")
                     failure.append((i, j))
 
         assert sum(1 for i, j in success if sol[i][j] is None) == sum(1 for i in range(9) for j in range(9) if sol[i][j] is None)

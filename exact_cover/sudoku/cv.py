@@ -26,12 +26,13 @@ class SudokuDetector:
         self.thresh_block_size = thresh_block_size
         self.thresh_C = thresh_C
 
+        self.no_points_per_side = 9 * no_points_per_segment
         self.cnt_ref = np.array(
             [
                 [[0, 0]],
-                [[9 * no_points_per_segment, 0]],
-                [[9 * no_points_per_segment, 9 * no_points_per_segment]],
-                [[0, 9 * no_points_per_segment]],
+                [[self.no_points_per_side, 0]],
+                [[self.no_points_per_side, self.no_points_per_side]],
+                [[0, self.no_points_per_side]],
             ],
         )
 
@@ -45,13 +46,13 @@ class SudokuDetector:
             blurred,
             255,
             cv.ADAPTIVE_THRESH_GAUSSIAN_C,
-            cv.THRESH_BINARY,
+            cv.THRESH_BINARY_INV,
             blockSize = self.thresh_block_size,
             C = self.thresh_C,
         )
 
         cnts, _ = cv.findContours(
-            cv.bitwise_not(threshed),
+            threshed,
             cv.RETR_LIST,
             cv.CHAIN_APPROX_SIMPLE,
         )
@@ -74,7 +75,7 @@ class SudokuDetector:
                 cnt_it.astype(np.float32),
                 self.cnt_ref.astype(np.float32),
             )
-            yield cv.warpPerspective(img, M, (9 * self.no_points_per_segment, 9 * self.no_points_per_segment))
+            yield cv.warpPerspective(img, M, (self.no_points_per_side, self.no_points_per_side))
 
     def extract_squares(self, img: npt.NDArray[np.uint8]) -> list[list[npt.NDArray[np.uint8]]]:
         res = [
@@ -87,15 +88,24 @@ class SudokuDetector:
 
         for i in range(9):
             for j in range(9):
-                img_it = img[i * self.no_points_per_segment:(i + 1) * self.no_points_per_segment, j * self.no_points_per_segment:(j + 1) * self.no_points_per_segment]
-                _, img_it = cv.threshold(img_it, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
+                i_0 = i * self.no_points_per_segment
+                i_1 = (i + 1) * self.no_points_per_segment
+                j_0 = j * self.no_points_per_segment
+                j_1 = (j + 1) * self.no_points_per_segment
+                img_it = img[i_0:i_1, j_0:j_1]
 
+                _, img_it_w_border = cv.threshold(
+                    img_it,
+                    0,
+                    255,
+                    cv.THRESH_BINARY_INV | cv.THRESH_OTSU,
+                )
                 img_it_wo_border = skimage.segmentation.clear_border(
-                    cv.bitwise_not(img_it),
+                    img_it_w_border,
                     self.border_buffer_size,
                 )
 
-                res[i][j] = cv.bitwise_not(img_it_wo_border)
+                res[i][j] = self.apply_mask(img_it, mask=img_it_wo_border)
 
         return res
 
@@ -117,13 +127,8 @@ class SudokuDetector:
         mask = np.zeros(img.shape, dtype=np.uint8)
         cv.drawContours(mask, [cnt], 0, 255, cv.FILLED)
 
-        img_inv = cv.bitwise_not(img)
-        res = cv.bitwise_and(
-            img_inv,
-            img_inv,
-            mask = mask,
-        )
-        res = cv.bitwise_not(res)
+        res = self.apply_mask(img, mask=mask)
+        res = self.increase_contrast(res)
 
         #res = cv.dilate(
         #    res,
@@ -150,3 +155,31 @@ class SudokuDetector:
         )
 
         return cnt[cnt_indices, :, :]
+
+    def apply_mask(
+        self,
+        img: npt.NDArray[np.int32],
+        mask: npt.NDArray[np.int32],
+    ) -> npt.NDArray[np.int32]:
+        img_inv = cv.bitwise_not(img)
+        res = cv.bitwise_and(
+            img_inv,
+            img_inv,
+            mask = mask,
+        )
+        res = cv.bitwise_not(res)
+
+        return res
+
+    def increase_contrast(
+        self,
+        img: npt.NDArray[np.int32],
+        fac: float | None = None,
+    ) -> npt.NDArray[np.int32]:
+        img_inv = cv.bitwise_not(img)
+        fac = fac or 255 / img_inv.max()
+
+        res = cv.convertScaleAbs(img_inv, alpha=fac)
+        res = cv.bitwise_not(res)
+
+        return res
