@@ -109,7 +109,7 @@ class SudokuDetector:
 
         return res
 
-    def extract_symbol(self, img: npt.NDArray[np.uint8]) -> npt.NDArray[np.uint8]:
+    def extract_symbol(self, img: npt.NDArray[np.uint8]) -> npt.NDArray[np.uint8] | None:
         cnts, _ = cv.findContours(
             cv.bitwise_not(img),
             cv.RETR_EXTERNAL,
@@ -123,6 +123,10 @@ class SudokuDetector:
             key = cv.contourArea,
         )
         #cnt = cv.approxPolyDP(cnt, 0.05, True)
+
+        _, _, _, h = cv.boundingRect(cnt)
+        if h < 0.4 * self.no_points_per_segment:
+            return None
 
         mask = np.zeros(img.shape, dtype=np.uint8)
         cv.drawContours(mask, [cnt], 0, 255, cv.FILLED)

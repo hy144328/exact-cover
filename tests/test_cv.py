@@ -60,9 +60,10 @@ class TestCV(abc.ABC):
         for i in range(9):
             for j in range(9):
                 img_it = detector.extract_symbol(squares[i][j])
-                res_it, conf_it = exact_cover.sudoku.ocr.parse_digit(img_it)
-                if res_it is None:
-                    img_it = img_it[0:40,5:45]
+
+                if img_it is None:
+                    res_it, conf_it = None, None
+                else:
                     res_it, conf_it = exact_cover.sudoku.ocr.parse_digit(img_it)
 
                 if res_it == sol[i][j]:
