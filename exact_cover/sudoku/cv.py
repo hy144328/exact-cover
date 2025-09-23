@@ -105,10 +105,7 @@ class SudokuDetector:
                     self.border_buffer_size,
                 )
 
-                res[i][j] = self.apply_mask(
-                    img_it,
-                    mask = img_it_wo_border,
-                )
+                res[i][j] = self.apply_mask(img_it, mask=img_it_wo_border)
 
         return res
 
@@ -130,13 +127,7 @@ class SudokuDetector:
         mask = np.zeros(img.shape, dtype=np.uint8)
         cv.drawContours(mask, [cnt], 0, 255, cv.FILLED)
 
-        img_inv = cv.bitwise_not(img)
-        res = cv.bitwise_and(
-            img_inv,
-            img_inv,
-            mask = mask,
-        )
-        res = cv.bitwise_not(res)
+        res = self.apply_mask(img, mask=mask)
 
         #res = cv.dilate(
         #    res,
