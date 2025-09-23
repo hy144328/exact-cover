@@ -187,3 +187,28 @@ class SudokuDetector:
         res = cv.bitwise_not(res)
 
         return res
+
+    def cut_region_of_interest(
+        self,
+        img: npt.NDArray[np.int32],
+    ) -> npt.NDArray[np.int32]:
+        cnts, _ = cv.findContours(
+            cv.bitwise_not(img),
+            cv.RETR_EXTERNAL,
+            cv.CHAIN_APPROX_SIMPLE,
+        )
+        if len(cnts) == 0:
+            return img
+
+        cnt = max(
+            cnts,
+            key = cv.contourArea,
+        )
+
+        x, y, w, h = cv.boundingRect(cnt)
+        d = self.no_points_per_segment // 10
+
+        res = np.full((h + 2 * d, w + 2 * d), 255, dtype=np.uint8)
+        res[d:-d, d:-d] = img[y:y+h, x:x+w]
+
+        return res

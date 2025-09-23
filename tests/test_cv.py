@@ -66,6 +66,10 @@ class TestCV(abc.ABC):
                 else:
                     res_it, conf_it = exact_cover.sudoku.ocr.parse_digit(img_it)
 
+                    if res_it is None:
+                        img_it = detector.cut_region_of_interest(img_it)
+                        res_it, conf_it = exact_cover.sudoku.ocr.parse_digit(img_it)
+
                 if res_it == sol[i][j]:
                     success.append((i, j))
                 else:
