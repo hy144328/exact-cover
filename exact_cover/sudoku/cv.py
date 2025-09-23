@@ -26,12 +26,13 @@ class SudokuDetector:
         self.thresh_block_size = thresh_block_size
         self.thresh_C = thresh_C
 
+        self.no_points_per_side = 9 * no_points_per_segment
         self.cnt_ref = np.array(
             [
                 [[0, 0]],
-                [[9 * no_points_per_segment, 0]],
-                [[9 * no_points_per_segment, 9 * no_points_per_segment]],
-                [[0, 9 * no_points_per_segment]],
+                [[self.no_points_per_side, 0]],
+                [[self.no_points_per_side, self.no_points_per_side]],
+                [[0, self.no_points_per_side]],
             ],
         )
 
@@ -74,7 +75,7 @@ class SudokuDetector:
                 cnt_it.astype(np.float32),
                 self.cnt_ref.astype(np.float32),
             )
-            yield cv.warpPerspective(img, M, (9 * self.no_points_per_segment, 9 * self.no_points_per_segment))
+            yield cv.warpPerspective(img, M, (self.no_points_per_side, self.no_points_per_side))
 
     def extract_squares(self, img: npt.NDArray[np.uint8]) -> list[list[npt.NDArray[np.uint8]]]:
         res = [
@@ -87,7 +88,11 @@ class SudokuDetector:
 
         for i in range(9):
             for j in range(9):
-                img_it = img[i * self.no_points_per_segment:(i + 1) * self.no_points_per_segment, j * self.no_points_per_segment:(j + 1) * self.no_points_per_segment]
+                i_0 = i * self.no_points_per_segment
+                i_1 = (i + 1) * self.no_points_per_segment
+                j_0 = j * self.no_points_per_segment
+                j_1 = (j + 1) * self.no_points_per_segment
+                img_it = img[i_0:i_1, j_0:j_1]
                 _, img_it = cv.threshold(img_it, 0, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
 
                 img_it_wo_border = skimage.segmentation.clear_border(
