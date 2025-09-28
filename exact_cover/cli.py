@@ -20,19 +20,23 @@ import cv2 as cv
 import exact_cover.solve
 import exact_cover.sudoku
 
-parser = argparse.ArgumentParser()
-parser.add_argument("filename")
-args = parser.parse_args()
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filename")
+    args = parser.parse_args()
 
-img = cv.imread(args.filename, cv.IMREAD_GRAYSCALE)
-puzzle = exact_cover.sudoku.read_sudoku(img)
-solver = exact_cover.solve.AlgorithmX()
+    img = cv.imread(args.filename, cv.IMREAD_GRAYSCALE)
+    puzzle = exact_cover.sudoku.read_sudoku(img)
+    solver = exact_cover.solve.AlgorithmX()
 
-print("Puzzle:")
-print(puzzle)
-print("\n")
-
-print("Solutions:")
-for sol_it in puzzle.solve(solver):
-    print(sol_it)
+    print("Puzzle:")
+    print(puzzle)
     print("\n")
+
+    print("Solutions:")
+    for sol_it in puzzle.solve(solver):
+        print(sol_it)
+        print("\n")
+
+if __name__ == "__main__":
+    main()
