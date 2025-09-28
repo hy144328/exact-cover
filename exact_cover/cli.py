@@ -14,8 +14,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import argparse
+import os.path
+import tempfile
+import urllib.parse
 
 import cv2 as cv
+import requests
 
 import exact_cover.solve
 import exact_cover.sudoku
@@ -25,7 +29,29 @@ def main():
     parser.add_argument("filename")
     args = parser.parse_args()
 
-    img = cv.imread(args.filename, cv.IMREAD_GRAYSCALE)
+    session = requests.Session()
+    session.headers.update({"User-Agent": "exact-cover"})
+
+    with tempfile.TemporaryDirectory() as dir_name:
+        if os.path.exists(args.filename):
+            file_name = args.filename
+        elif urllib.parse.urlparse(args.filename).scheme != "":
+            response = session.get(args.filename)
+            response.raise_for_status()
+
+            with tempfile.NamedTemporaryFile(
+                suffix = os.path.splitext(args.filename)[1],
+                dir = dir_name,
+                delete = False,
+            ) as f:
+                f.write(response.content)
+
+            file_name = f.name
+        else:
+            raise FileNotFoundError(args.filename)
+
+        img = cv.imread(file_name, cv.IMREAD_GRAYSCALE)
+
     puzzle = exact_cover.sudoku.read_sudoku(img)
     solver = exact_cover.solve.AlgorithmX()
 
