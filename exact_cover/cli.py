@@ -14,29 +14,59 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import argparse
+import logging
+import os.path
+import tempfile
+import urllib.parse
 
 import cv2 as cv
+import requests
 
 import exact_cover.solve
 import exact_cover.sudoku
+
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("filename")
     args = parser.parse_args()
 
-    img = cv.imread(args.filename, cv.IMREAD_GRAYSCALE)
+    session = requests.Session()
+    session.headers.update({"User-Agent": "exact-cover"})
+
+    if os.path.exists(args.filename):
+        img = cv.imread(args.filename, cv.IMREAD_GRAYSCALE)
+    elif urllib.parse.urlparse(args.filename).scheme != "":
+        logger.debug(f"Load {args.filename}.")
+        response = session.get(args.filename)
+        response.raise_for_status()
+
+        with tempfile.TemporaryDirectory() as dir_name:
+            with tempfile.NamedTemporaryFile(
+                suffix = os.path.splitext(args.filename)[1],
+                dir = dir_name,
+                delete = False,
+            ) as f:
+                logger.debug(f"Write {f.name}.")
+                f.write(response.content)
+
+            img = cv.imread(f.name, cv.IMREAD_GRAYSCALE)
+    else:
+        raise FileNotFoundError(args.filename)
+
+    assert img is not None
     puzzle = exact_cover.sudoku.read_sudoku(img)
     solver = exact_cover.solve.AlgorithmX()
 
-    print("Puzzle:")
-    print(puzzle)
-    print("\n")
+    logger.info("Puzzle:")
+    logger.info(puzzle)
 
-    print("Solutions:")
+    logger.info("Solutions:")
     for sol_it in puzzle.solve(solver):
-        print(sol_it)
-        print("\n")
+        logger.info(sol_it)
 
 if __name__ == "__main__":
     main()
