@@ -32,13 +32,13 @@ def main():
     session = requests.Session()
     session.headers.update({"User-Agent": "exact-cover"})
 
-    with tempfile.TemporaryDirectory() as dir_name:
-        if os.path.exists(args.filename):
-            file_name = args.filename
-        elif urllib.parse.urlparse(args.filename).scheme != "":
-            response = session.get(args.filename)
-            response.raise_for_status()
+    if os.path.exists(args.filename):
+        img = cv.imread(args.filename, cv.IMREAD_GRAYSCALE)
+    elif urllib.parse.urlparse(args.filename).scheme != "":
+        response = session.get(args.filename)
+        response.raise_for_status()
 
+        with tempfile.TemporaryDirectory() as dir_name:
             with tempfile.NamedTemporaryFile(
                 suffix = os.path.splitext(args.filename)[1],
                 dir = dir_name,
@@ -46,12 +46,11 @@ def main():
             ) as f:
                 f.write(response.content)
 
-            file_name = f.name
-        else:
-            raise FileNotFoundError(args.filename)
+            img = cv.imread(f.name, cv.IMREAD_GRAYSCALE)
+    else:
+        raise FileNotFoundError(args.filename)
 
-        img = cv.imread(file_name, cv.IMREAD_GRAYSCALE)
-
+    assert img is not None
     puzzle = exact_cover.sudoku.read_sudoku(img)
     solver = exact_cover.solve.AlgorithmX()
 
