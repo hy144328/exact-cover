@@ -3,4 +3,5 @@ fail_under=99
 show_missing=True
 
 [run]
+omit=exact_cover/cli.py
 source=exact_cover/
