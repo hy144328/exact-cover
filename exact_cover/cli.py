@@ -63,12 +63,10 @@ def main():
 
     logger.info("Puzzle:")
     logger.info(puzzle)
-    logger.info("\n")
 
     logger.info("Solutions:")
     for sol_it in puzzle.solve(solver):
         logger.info(sol_it)
-        logger.info("\n")
 
 if __name__ == "__main__":
     main()
